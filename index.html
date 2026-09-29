@@ -1,0 +1,3229 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no" />
+<title>Heróis de Bueiro — Ficha</title>
+<meta name="description" content="Ficha de personagem e campanhas do RPG Heróis de Bueiro." />
+<meta name="theme-color" content="#0a0a0a" />
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'%3E%3Ctext y='.9em' font-size='90'%3E🎲%3C/text%3E%3C/svg%3E" />
+<style>
+:root {
+  --bg: #0a0a0a;
+  --surface: #141414;
+  --surface2: #1c1c1c;
+  --surface3: #252525;
+  --border: #2e2e2e;
+  --ink: #f0f0f0;
+  --muted: #8a8a8a;
+  --accent: #e11d48;
+  --accent2: #7c3aed;
+  --accent-dim: #6b21a8;
+  --red: #c42e38;
+  --gold: #c4a04a;
+  --ok: #22c55e;
+  --bar-pv: #22c55e;
+  --bar-mana: #3b82f6;
+  --bar-rep: #e11d48;
+  --radius: 12px;
+  --font: "Segoe UI", system-ui, -apple-system, sans-serif;
+}
+* { box-sizing: border-box; margin: 0; padding: 0; }
+html, body { height: 100%; }
+body {
+  font-family: var(--font);
+  background: var(--bg);
+  color: var(--ink);
+  min-height: 100vh;
+  line-height: 1.4;
+  -webkit-tap-highlight-color: transparent;
+}
+button {
+  font-family: inherit; cursor: pointer; border: none;
+  background: none; color: inherit;
+}
+input, select, textarea {
+  font-family: inherit; color: var(--ink);
+  background: var(--surface2); border: 1px solid var(--border);
+  border-radius: 8px; padding: 10px 12px; width: 100%;
+  font-size: 0.95rem; outline: none;
+}
+input:focus, select:focus, textarea:focus { border-color: var(--accent); }
+input[type="number"] { -moz-appearance: textfield; }
+textarea { resize: vertical; min-height: 100px; }
+label {
+  display: block; font-size: 0.7rem; font-weight: 600;
+  letter-spacing: 0.06em; text-transform: uppercase;
+  color: var(--muted); margin-bottom: 6px;
+}
+
+/* ── LISTA ── */
+#viewList { min-height: 100vh; padding: 16px; max-width: 560px; margin: 0 auto; }
+.list-header {
+  display: flex; align-items: center; justify-content: space-between;
+  margin-bottom: 20px; padding-top: 8px;
+}
+.list-header h1 {
+  font-size: 1.1rem; font-weight: 700;
+}
+.list-header h1 span {
+  display: block; font-size: 0.7rem; color: var(--accent);
+  letter-spacing: 0.12em; font-weight: 600; margin-bottom: 2px;
+}
+.btn-new {
+  background: var(--surface3); color: var(--ink);
+  padding: 10px 16px; border-radius: 8px; font-weight: 600; font-size: 0.85rem;
+  border: 1px solid var(--border);
+  position: relative; z-index: 5; pointer-events: auto;
+  -webkit-user-select: none; user-select: none;
+  touch-action: manipulation;
+  min-height: 44px; min-width: 80px;
+}
+.btn-new:hover, .btn-new:active { border-color: var(--accent); color: var(--accent); background: var(--surface2); }
+.list-count { color: var(--muted); font-size: 0.9rem; margin-bottom: 12px; }
+.search-box {
+  position: relative; margin-bottom: 16px;
+}
+.search-box input {
+  padding-left: 40px; background: var(--surface); border-radius: 10px;
+}
+.search-box::before {
+  content: "⌕"; position: absolute; left: 14px; top: 50%;
+  transform: translateY(-50%); color: var(--muted); font-size: 1.1rem;
+}
+.char-card {
+  display: flex; align-items: center; gap: 14px;
+  background: var(--surface); border: 1px solid var(--border);
+  border-radius: var(--radius); padding: 14px; margin-bottom: 10px;
+  transition: border-color 0.15s;
+}
+.char-card:active { border-color: var(--accent); }
+.char-avatar {
+  width: 56px; height: 56px; border-radius: 10px;
+  background: var(--surface3); display: flex; align-items: center;
+  justify-content: center; font-size: 1.5rem; font-weight: 800;
+  color: var(--accent); flex-shrink: 0; overflow: hidden;
+}
+.char-avatar img { width: 100%; height: 100%; object-fit: cover; }
+.char-info { flex: 1; min-width: 0; }
+.char-info .name { font-weight: 700; font-size: 1.05rem; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.char-info .meta { color: var(--muted); font-size: 0.8rem; margin-top: 2px; }
+.char-info .date { color: var(--muted); font-size: 0.7rem; margin-top: 4px; opacity: 0.7; }
+.btn-access {
+  background: var(--accent); color: #fff; font-weight: 700;
+  padding: 8px 14px; border-radius: 8px; font-size: 0.8rem; flex-shrink: 0;
+}
+.btn-access:hover { background: var(--accent2); }
+.btn-gear {
+  color: var(--muted); font-size: 1.2rem; padding: 6px; flex-shrink: 0;
+}
+.btn-gear:hover { color: var(--ink); }
+.empty-list {
+  text-align: center; padding: 60px 20px; color: var(--muted);
+}
+
+/* ── FICHA ── */
+#viewSheet { display: none; min-height: 100vh; padding-bottom: 80px; }
+.sheet-top {
+  position: sticky; top: 0; z-index: 40;
+  background: rgba(10,10,10,0.92); backdrop-filter: blur(12px);
+  border-bottom: 1px solid var(--border);
+  display: flex; align-items: center; gap: 12px; padding: 12px 16px;
+}
+.sheet-top .back {
+  width: 40px; height: 40px; border-radius: 10px;
+  background: var(--surface2); display: flex; align-items: center;
+  justify-content: center; font-size: 1.2rem; flex-shrink: 0;
+}
+.sheet-top .title { flex: 1; min-width: 0; }
+.sheet-top .title .n { font-weight: 700; font-size: 1rem; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.sheet-top .title .s { font-size: 0.75rem; color: var(--muted); }
+.sheet-top .menu-btn {
+  width: 40px; height: 40px; border-radius: 10px;
+  background: var(--surface2); display: flex; align-items: center;
+  justify-content: center; font-size: 1.3rem;
+}
+
+.sheet-body { max-width: 560px; margin: 0 auto; padding: 16px; }
+
+/* Attribute radial */
+.attr-radial {
+  position: relative; width: 100%; max-width: 300px;
+  aspect-ratio: 1; margin: 4px auto 20px;
+}
+.attr-center {
+  position: absolute; left: 50%; top: 50%;
+  transform: translate(-50%, -50%);
+  width: 96px; height: 96px; border-radius: 50%;
+  background: radial-gradient(circle at 40% 35%, #2a2a2a, #141414);
+  border: 2px solid var(--accent-dim);
+  box-shadow: 0 0 24px rgba(225,29,72,0.15), inset 0 0 20px rgba(0,0,0,0.4);
+  display: flex; align-items: center; justify-content: center;
+  flex-direction: column; z-index: 2;
+}
+.attr-center span {
+  font-size: 0.62rem; letter-spacing: 0.14em; color: var(--accent);
+  font-weight: 800; text-align: center; line-height: 1.2;
+}
+.attr-node {
+  position: absolute; width: 76px; height: 76px;
+  border-radius: 50%;
+  background: radial-gradient(circle at 40% 30%, #222, #111);
+  border: 2px solid #3a3a3a;
+  box-shadow: 0 4px 12px rgba(0,0,0,0.5);
+  display: flex; flex-direction: column; align-items: center;
+  justify-content: center; cursor: pointer; z-index: 2;
+  transition: border-color 0.2s, transform 0.2s, box-shadow 0.2s;
+  -webkit-tap-highlight-color: transparent;
+}
+.attr-node:hover, .attr-node:active {
+  border-color: var(--accent);
+  transform: translate(-50%, -50%) scale(1.08) !important;
+  box-shadow: 0 0 16px rgba(225,29,72,0.35);
+}
+.attr-node.has-val { border-color: #7f1d1d; }
+.attr-node.neg { border-color: #7f1d1d; }
+.attr-node .val {
+  font-size: 1.5rem; font-weight: 800; line-height: 1; color: var(--ink);
+}
+.attr-node.has-val .val { color: var(--accent); }
+.attr-node.neg .val { color: #f87171; }
+.attr-node .lab {
+  font-size: 0.58rem; font-weight: 800; letter-spacing: 0.06em;
+  color: var(--muted); margin-top: 3px; text-transform: uppercase;
+}
+.attr-node .dice-sm {
+  font-size: 0.52rem; color: var(--gold); font-weight: 700; margin-top: 1px;
+  opacity: 0.9;
+}
+.attr-svg {
+  position: absolute; inset: 0; width: 100%; height: 100%; z-index: 1;
+  pointer-events: none;
+}
+
+/* Bestial transform banner */
+.bestial-bar {
+  display: none;
+  background: linear-gradient(135deg, #1a0a0a, #2a1010);
+  border: 1px solid #7f1d1d;
+  border-radius: 12px; padding: 14px; margin-bottom: 14px;
+  align-items: center; gap: 12px;
+}
+.bestial-bar.show { display: flex; }
+.bestial-bar .info { flex: 1; }
+.bestial-bar .info strong { color: #f87171; display: block; margin-bottom: 4px; }
+.bestial-bar .info span { font-size: 0.75rem; color: var(--muted); }
+.bestial-bar .btn-transform {
+  padding: 12px 16px; border-radius: 10px; font-weight: 800; font-size: 0.8rem;
+  white-space: nowrap; flex-shrink: 0;
+  border: 2px solid #7f1d1d; background: #1a0a0a; color: #f87171;
+}
+.bestial-bar .btn-transform.on {
+  background: #7f1d1d; color: #fff; border-color: #f87171;
+  box-shadow: 0 0 16px rgba(248,113,113,0.3);
+}
+
+/* Resource bars */
+.res-block { margin-bottom: 18px; }
+.res-label {
+  display: flex; justify-content: space-between; align-items: center;
+  margin-bottom: 6px; font-size: 0.75rem; font-weight: 700;
+  letter-spacing: 0.08em; text-transform: uppercase; color: var(--muted);
+}
+.res-bar-wrap {
+  display: flex; align-items: center; gap: 8px;
+}
+.res-bar {
+  flex: 1; height: 28px; background: var(--surface2);
+  border-radius: 8px; overflow: hidden; position: relative;
+  border: 1px solid var(--border);
+}
+.res-bar-fill {
+  height: 100%; border-radius: 7px; transition: width 0.2s;
+  display: flex; align-items: center; justify-content: center;
+  font-size: 0.8rem; font-weight: 700; color: #fff;
+  min-width: 0;
+}
+.res-bar-fill.pv { background: linear-gradient(90deg, #166534, var(--bar-pv)); }
+.res-bar-fill.mana { background: linear-gradient(90deg, #1e40af, var(--bar-mana)); }
+.res-bar-fill.rep { background: linear-gradient(90deg, var(--accent-dim), var(--accent)); }
+.res-ctrl {
+  display: flex; gap: 4px;
+}
+.res-ctrl button {
+  width: 32px; height: 28px; border-radius: 6px;
+  background: var(--surface3); border: 1px solid var(--border);
+  font-weight: 700; font-size: 0.9rem; color: var(--ink);
+}
+.res-ctrl button:hover { border-color: var(--accent); }
+.res-nums {
+  font-size: 0.85rem; font-weight: 700; min-width: 52px; text-align: right;
+}
+
+/* Defense shield */
+.def-row {
+  display: flex; align-items: center; gap: 16px;
+  background: var(--surface); border: 1px solid var(--border);
+  border-radius: var(--radius); padding: 16px; margin-bottom: 16px;
+}
+.def-shield {
+  width: 64px; height: 72px;
+  background: var(--surface2); border: 2px solid var(--accent);
+  border-radius: 8px 8px 50% 50%;
+  display: flex; align-items: center; justify-content: center;
+  font-size: 1.6rem; font-weight: 800; color: var(--accent); flex-shrink: 0;
+}
+.def-info { flex: 1; }
+.def-info h3 { font-size: 0.8rem; letter-spacing: 0.08em; color: var(--muted); margin-bottom: 4px; }
+.def-info .formula { font-size: 0.8rem; color: var(--muted); }
+.def-info input { max-width: 80px; text-align: center; font-weight: 700; margin-top: 4px; }
+
+/* Section cards */
+.sec {
+  background: var(--surface); border: 1px solid var(--border);
+  border-radius: var(--radius); padding: 16px; margin-bottom: 14px;
+}
+.sec h2 {
+  font-size: 0.75rem; font-weight: 700; letter-spacing: 0.1em;
+  text-transform: uppercase; color: var(--accent); margin-bottom: 14px;
+  padding-bottom: 8px; border-bottom: 1px solid var(--border);
+}
+.field { margin-bottom: 12px; }
+.hint { font-size: 0.7rem; color: var(--muted); margin-top: 4px; }
+.grid-2 { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; }
+.pts-bar {
+  display: flex; flex-wrap: wrap; gap: 8px; align-items: center;
+  background: var(--surface2); border-radius: 8px; padding: 10px 12px;
+  margin-bottom: 14px; font-size: 0.85rem;
+}
+.pts-bar strong { color: var(--accent); }
+.pts-bar .ok { color: var(--ok); }
+.pts-bar .warn { color: var(--red); }
+
+/* Mastery / attacks */
+.mae-item {
+  background: var(--surface2); border: 1px solid var(--border);
+  border-radius: 10px; padding: 12px; margin-bottom: 8px;
+  display: flex; align-items: center; gap: 10px;
+}
+.mae-item .info { flex: 1; }
+.mae-item .info .t { font-weight: 700; font-size: 0.95rem; }
+.mae-item .info .b { color: var(--accent); font-size: 0.8rem; font-weight: 600; }
+.mae-item select { width: auto; min-width: 110px; padding: 6px 8px; font-size: 0.8rem; }
+.btn-roll {
+  background: var(--accent); color: #fff; font-weight: 700;
+  width: 40px; height: 40px; border-radius: 10px; font-size: 1.1rem; flex-shrink: 0;
+}
+.btn-roll:hover { background: var(--accent2); }
+.roll-out {
+  margin-top: 10px; font-weight: 700; color: var(--gold);
+  font-size: 0.95rem; min-height: 1.3em;
+}
+
+/* Test buttons */
+.test-grid {
+  display: grid; grid-template-columns: 1fr 1fr; gap: 8px;
+}
+.test-grid button {
+  background: var(--surface2); border: 1px solid var(--border);
+  border-radius: 10px; padding: 12px; font-weight: 600; font-size: 0.85rem;
+  text-align: left;
+}
+.test-grid button:hover { border-color: var(--accent); }
+.test-grid button small { display: block; color: var(--muted); font-weight: 500; font-size: 0.7rem; margin-top: 2px; }
+
+/* Collapsible */
+.collapse {
+  background: var(--surface2); border: 1px solid var(--border);
+  border-radius: 10px; margin-bottom: 8px; overflow: hidden;
+}
+.collapse-head {
+  display: flex; align-items: center; gap: 10px;
+  padding: 12px 14px; cursor: pointer; font-weight: 600;
+}
+.collapse-head .arrow { color: var(--accent); transition: transform 0.2s; }
+.collapse.open .collapse-head .arrow { transform: rotate(90deg); }
+.collapse-body { display: none; padding: 0 14px 14px; }
+.collapse.open .collapse-body { display: block; }
+
+/* Bottom nav / menu overlay */
+.nav-overlay {
+  display: none; position: fixed; inset: 0; z-index: 50;
+  background: rgba(0,0,0,0.7); backdrop-filter: blur(4px);
+}
+.nav-overlay.show { display: block; }
+.nav-panel {
+  position: fixed; left: 0; right: 0; bottom: 0; z-index: 51;
+  background: var(--surface); border-radius: 20px 20px 0 0;
+  padding: 12px 16px 28px; transform: translateY(100%);
+  transition: transform 0.25s ease; max-width: 560px; margin: 0 auto;
+  border: 1px solid var(--border); border-bottom: none;
+}
+.nav-panel.show { transform: translateY(0); }
+.nav-handle {
+  width: 40px; height: 4px; background: var(--border);
+  border-radius: 2px; margin: 0 auto 16px;
+}
+.nav-grid {
+  display: grid; grid-template-columns: 1fr 1fr; gap: 10px;
+}
+.nav-grid button {
+  background: var(--surface2); border: 1px solid var(--border);
+  border-radius: 12px; padding: 16px 12px; font-weight: 700;
+  font-size: 0.8rem; letter-spacing: 0.06em; text-align: center;
+  color: var(--ink);
+}
+.nav-grid button:hover, .nav-grid button.active {
+  border-color: var(--accent); color: var(--accent);
+}
+.nav-close {
+  margin-top: 14px; width: 100%; padding: 12px;
+  background: var(--surface3); border-radius: 10px;
+  font-weight: 600; color: var(--muted);
+}
+
+/* FAB menu */
+.fab {
+  position: fixed; bottom: 20px; right: 20px; z-index: 30;
+  width: 52px; height: 52px; border-radius: 16px;
+  background: var(--accent); color: #fff; font-size: 1.4rem;
+  display: flex; align-items: center; justify-content: center;
+  box-shadow: 0 4px 20px rgba(225,29,72,0.4);
+}
+.fab:hover { background: var(--accent2); }
+
+/* Tabs content */
+.tab-pane { display: none; }
+.tab-pane.active { display: block; }
+
+/* Attr edit modal */
+.modal-bg {
+  display: none; position: fixed; inset: 0; z-index: 60;
+  background: rgba(0,0,0,0.75); align-items: center; justify-content: center;
+  padding: 20px;
+}
+.modal-bg.show { display: flex; }
+.modal {
+  background: var(--surface); border: 1px solid var(--border);
+  border-radius: 16px; padding: 20px; width: 100%; max-width: 320px;
+}
+.modal h3 { margin-bottom: 12px; font-size: 1.1rem; }
+.modal .row { display: flex; gap: 8px; align-items: center; margin-bottom: 12px; }
+.modal .row button {
+  width: 44px; height: 44px; border-radius: 10px;
+  background: var(--surface3); border: 1px solid var(--border);
+  font-size: 1.3rem; font-weight: 700;
+}
+.modal .row input { text-align: center; font-size: 1.4rem; font-weight: 800; }
+.modal .actions { display: flex; gap: 8px; margin-top: 8px; }
+.modal .actions button {
+  flex: 1; padding: 12px; border-radius: 10px; font-weight: 700;
+}
+.btn-primary { background: var(--accent); color: #fff; }
+.btn-ghost { background: var(--surface3); color: var(--muted); border: 1px solid var(--border); }
+
+.desc-box {
+  font-size: 0.85rem; color: var(--muted); background: var(--surface2);
+  border-left: 3px solid var(--accent); padding: 10px 12px;
+  margin-top: 8px; border-radius: 0 8px 8px 0; white-space: pre-wrap;
+}
+.choice-row { display: flex; flex-wrap: wrap; gap: 8px; margin-top: 10px; }
+.choice-row .field { margin: 0; min-width: 140px; flex: 1; }
+
+.toast {
+  position: fixed; bottom: 90px; left: 50%; transform: translateX(-50%);
+  background: var(--ok); color: #fff; padding: 10px 18px;
+  border-radius: 10px; font-weight: 600; font-size: 0.85rem;
+  opacity: 0; pointer-events: none; transition: opacity 0.3s; z-index: 100;
+  white-space: nowrap;
+}
+.toast.show { opacity: 1; }
+
+@media (min-width: 600px) {
+  .test-grid { grid-template-columns: 1fr 1fr 1fr; }
+}
+
+/* Avatar */
+.char-avatar { position: relative; }
+.char-avatar img { width: 100%; height: 100%; object-fit: cover; border-radius: 10px; }
+.sheet-avatar {
+  width: 40px; height: 40px; border-radius: 10px; flex-shrink: 0;
+  background: var(--surface3); overflow: hidden;
+  display: flex; align-items: center; justify-content: center;
+  font-weight: 800; color: var(--accent); font-size: 1rem;
+  border: 1px solid var(--border);
+}
+.sheet-avatar img { width: 100%; height: 100%; object-fit: cover; }
+.avatar-edit {
+  display: flex; align-items: center; gap: 14px; margin-bottom: 14px;
+}
+.avatar-preview {
+  width: 72px; height: 72px; border-radius: 14px;
+  background: var(--surface2); border: 2px solid var(--border);
+  overflow: hidden; display: flex; align-items: center; justify-content: center;
+  font-size: 1.6rem; font-weight: 800; color: var(--accent); flex-shrink: 0;
+}
+.avatar-preview img { width: 100%; height: 100%; object-fit: cover; }
+.avatar-actions { display: flex; flex-direction: column; gap: 6px; }
+.avatar-actions button {
+  padding: 8px 12px; border-radius: 8px; font-size: 0.8rem; font-weight: 600;
+  background: var(--surface3); border: 1px solid var(--border); text-align: left;
+}
+.avatar-actions button:hover { border-color: var(--accent); color: var(--accent); }
+
+/* Powers list */
+.power-card {
+  background: var(--surface2); border: 1px solid var(--border);
+  border-radius: 12px; margin-bottom: 10px; overflow: hidden;
+}
+.power-head {
+  display: flex; align-items: center; gap: 10px;
+  padding: 12px 14px; cursor: pointer;
+}
+.power-head .arrow { color: var(--accent); transition: transform 0.2s; font-size: 0.85rem; }
+.power-card.open .power-head .arrow { transform: rotate(90deg); }
+.power-head .pinfo { flex: 1; min-width: 0; }
+.power-head .pname { font-weight: 700; font-size: 0.95rem; }
+.power-head .pmeta { font-size: 0.75rem; color: var(--muted); margin-top: 2px; }
+.power-head .pmeta span { color: var(--accent); font-weight: 600; }
+.power-body { display: none; padding: 0 14px 14px; border-top: 1px solid var(--border); padding-top: 12px; }
+.power-card.open .power-body { display: block; }
+.power-body .grid-2 { margin-bottom: 8px; }
+.btn-add-power {
+  width: 100%; padding: 14px; border-radius: 12px; font-weight: 700;
+  border: 1px dashed var(--border); color: var(--accent); margin-bottom: 12px;
+  background: transparent;
+}
+.btn-add-power:hover { border-color: var(--accent); background: var(--surface2); }
+.btn-del-power {
+  color: #f87171; font-size: 0.8rem; font-weight: 600; padding: 8px 0;
+}
+.btn-roll-power {
+  background: var(--accent); color: #fff; font-weight: 700;
+  padding: 8px 14px; border-radius: 8px; font-size: 0.85rem;
+}
+
+
+.atk-row {
+  display: flex; gap: 8px; align-items: stretch; margin-top: 8px; flex-wrap: wrap;
+}
+.atk-row select {
+  flex: 1; min-width: 140px;
+}
+.btn-atk-test {
+  background: var(--accent); color: #fff; font-weight: 700;
+  padding: 10px 14px; border-radius: 8px; font-size: 0.85rem; white-space: nowrap;
+}
+.btn-atk-test:hover { background: var(--accent2); }
+.item-qty {
+  display: inline-block; background: var(--surface3); border-radius: 6px;
+  padding: 2px 8px; font-size: 0.75rem; font-weight: 700; color: var(--accent);
+  margin-left: 6px;
+}
+
+
+/* Hamburger + app menu */
+.hamburger {
+  width: 40px; height: 40px; border-radius: 10px;
+  background: var(--surface2); border: 1px solid var(--border);
+  display: flex; flex-direction: column; align-items: center; justify-content: center;
+  gap: 5px; flex-shrink: 0; cursor: pointer;
+}
+.hamburger span {
+  display: block; width: 18px; height: 2px; background: var(--ink); border-radius: 1px;
+}
+.hamburger:hover { border-color: var(--accent); }
+.hamburger:hover span { background: var(--accent); }
+
+.app-drawer-bg {
+  display: none; position: fixed; inset: 0; z-index: 80;
+  background: rgba(0,0,0,0.65); backdrop-filter: blur(4px);
+}
+.app-drawer-bg.show { display: block; }
+.app-drawer {
+  position: fixed; top: 0; left: 0; bottom: 0; z-index: 81;
+  width: min(300px, 85vw); background: var(--surface);
+  border-right: 1px solid var(--border);
+  transform: translateX(-100%); transition: transform 0.25s ease;
+  padding: 20px 0; display: flex; flex-direction: column;
+}
+.app-drawer.show { transform: translateX(0); }
+.app-drawer .drawer-brand {
+  padding: 8px 20px 20px; border-bottom: 1px solid var(--border); margin-bottom: 8px;
+}
+.app-drawer .drawer-brand .t {
+  font-size: 0.65rem; letter-spacing: 0.12em; color: var(--accent); font-weight: 700;
+}
+.app-drawer .drawer-brand .n {
+  font-size: 1.15rem; font-weight: 800; margin-top: 2px;
+}
+.app-drawer button, .app-drawer a.drawer-item {
+  display: flex; align-items: center; gap: 12px;
+  width: 100%; padding: 14px 20px; text-align: left;
+  font-size: 0.95rem; font-weight: 600; color: var(--ink);
+  background: none; border: none; cursor: pointer;
+  text-decoration: none; font-family: inherit;
+}
+.app-drawer button:hover, .app-drawer a.drawer-item:hover {
+  background: var(--surface2); color: var(--accent);
+}
+.app-drawer .icon { font-size: 1.2rem; width: 28px; text-align: center; }
+.app-drawer .drawer-foot {
+  margin-top: auto; padding: 16px 20px; border-top: 1px solid var(--border);
+  font-size: 0.7rem; color: var(--muted);
+}
+
+
+/* Campaign */
+#viewCampaigns, #viewCampaign, #viewCombat { display: none; min-height: 100vh; padding-bottom: 80px; }
+.camp-header {
+  position: sticky; top: 0; z-index: 40;
+  background: rgba(10,10,10,0.92); backdrop-filter: blur(12px);
+  border-bottom: 1px solid var(--border);
+  display: flex; align-items: center; gap: 10px; padding: 12px 16px;
+}
+.camp-header h1 { flex: 1; font-size: 1.05rem; font-weight: 800; }
+.camp-tabs {
+  display: flex; gap: 0; border-bottom: 1px solid var(--border);
+  padding: 0 16px; overflow-x: auto; background: var(--bg);
+  position: sticky; top: 57px; z-index: 35;
+}
+.camp-tabs button {
+  padding: 12px 14px; font-weight: 700; font-size: 0.8rem;
+  letter-spacing: 0.04em; color: var(--muted); border-bottom: 2px solid transparent;
+  white-space: nowrap;
+}
+.camp-tabs button.active { color: var(--accent); border-bottom-color: var(--accent); }
+.camp-body { max-width: 560px; margin: 0 auto; padding: 16px; }
+.camp-card {
+  background: var(--surface); border: 1px solid var(--border);
+  border-radius: 14px; padding: 16px; margin-bottom: 12px;
+  position: relative; overflow: hidden;
+}
+.camp-card .camp-title { font-weight: 800; font-size: 1.1rem; margin-bottom: 4px; }
+.camp-card .camp-meta { font-size: 0.75rem; color: var(--muted); margin-bottom: 12px; }
+.combat-card {
+  background: var(--surface); border: 1px solid var(--border);
+  border-left: 3px solid var(--accent); border-radius: 12px;
+  padding: 14px; margin-bottom: 10px;
+}
+.combat-card .ctitle { font-weight: 700; }
+.combat-card .cmeta { font-size: 0.8rem; color: var(--muted); margin-top: 4px; }
+.combat-card .cactions { display: flex; gap: 8px; margin-top: 12px; flex-wrap: wrap; }
+.init-row {
+  display: flex; align-items: center; gap: 12px;
+  background: var(--surface); border: 1px solid var(--border);
+  border-radius: 12px; padding: 12px; margin-bottom: 8px;
+}
+.init-row.active {
+  border-color: var(--accent);
+  box-shadow: 0 0 0 1px var(--accent);
+}
+.init-row .init-val {
+  font-size: 1.4rem; font-weight: 800; min-width: 40px; text-align: center;
+  color: var(--accent);
+}
+.init-row .init-info { flex: 1; min-width: 0; }
+.init-row .init-info .n { font-weight: 700; }
+.init-row .init-info .hp { font-size: 0.8rem; color: var(--muted); margin-top: 2px; }
+.init-row .init-info .hp .low { color: #f87171; }
+.init-av {
+  width: 44px; height: 44px; border-radius: 10px; background: var(--surface3);
+  display: flex; align-items: center; justify-content: center;
+  font-weight: 800; color: var(--accent); overflow: hidden; flex-shrink: 0;
+}
+.init-av img { width: 100%; height: 100%; object-fit: cover; }
+.init-av.monster { color: #f87171; border: 1px solid #7f1d1d; }
+.turn-bar {
+  display: flex; gap: 8px; flex-wrap: wrap; margin-bottom: 14px;
+  align-items: center;
+}
+.turn-bar .round {
+  font-weight: 700; color: var(--muted); font-size: 0.85rem; margin-right: auto;
+}
+.agent-pick {
+  background: var(--surface2); border: 1px solid var(--border);
+  border-radius: 10px; padding: 12px; margin-bottom: 8px;
+  display: flex; align-items: center; gap: 10px;
+}
+.agent-pick .info { flex: 1; }
+.modal-sheet {
+  display: none; position: fixed; inset: 0; z-index: 85;
+  background: rgba(0,0,0,0.75); align-items: flex-end; justify-content: center;
+}
+.modal-sheet.show { display: flex; }
+.modal-sheet .panel {
+  background: var(--surface); border-radius: 20px 20px 0 0;
+  width: 100%; max-width: 560px; max-height: 85vh; overflow-y: auto;
+  padding: 16px 16px 28px; border: 1px solid var(--border); border-bottom: none;
+}
+.modal-sheet .panel h3 { margin-bottom: 14px; font-size: 1.1rem; }
+
+
+.app-dialog-bg {
+  display: none; position: fixed; inset: 0; z-index: 100;
+  background: rgba(0,0,0,0.7); backdrop-filter: blur(6px);
+  align-items: center; justify-content: center; padding: 20px;
+}
+.app-dialog-bg.show { display: flex; }
+.app-dialog {
+  background: var(--surface); border: 1px solid var(--border);
+  border-radius: 18px; padding: 22px; width: 100%; max-width: 340px;
+  box-shadow: 0 20px 50px rgba(0,0,0,0.5);
+}
+.app-dialog h3 { font-size: 1.1rem; font-weight: 800; margin-bottom: 8px; }
+.app-dialog .msg { font-size: 0.9rem; color: var(--muted); margin-bottom: 14px; line-height: 1.4; }
+.app-dialog input, .app-dialog textarea { margin-bottom: 14px; }
+.app-dialog .dlg-actions { display: flex; gap: 10px; margin-top: 4px; }
+.app-dialog .dlg-actions button {
+  flex: 1; padding: 12px; border-radius: 12px; font-weight: 700; font-size: 0.9rem;
+}
+.pick-list { max-height: 50vh; overflow-y: auto; margin-bottom: 12px; }
+.pick-item {
+  display: flex; align-items: center; gap: 12px;
+  background: var(--surface2); border: 1px solid var(--border);
+  border-radius: 12px; padding: 12px; margin-bottom: 8px;
+  cursor: pointer; transition: border-color 0.15s;
+}
+.pick-item:hover, .pick-item:active { border-color: var(--accent); }
+.pick-item .av {
+  width: 44px; height: 44px; border-radius: 10px; background: var(--surface3);
+  display: flex; align-items: center; justify-content: center;
+  font-weight: 800; color: var(--accent); overflow: hidden; flex-shrink: 0; font-size: 1rem;
+}
+.pick-item .av img { width: 100%; height: 100%; object-fit: cover; }
+.pick-item .av.mon { color: #f87171; }
+.pick-item .txt { flex: 1; min-width: 0; }
+.pick-item .txt .n { font-weight: 700; }
+.pick-item .txt .s { font-size: 0.75rem; color: var(--muted); margin-top: 2px; }
+.pick-section {
+  font-size: 0.7rem; font-weight: 700; letter-spacing: 0.08em;
+  text-transform: uppercase; color: var(--accent); margin: 14px 0 8px;
+}
+
+</style>
+</head>
+<body>
+
+<!-- ════ LISTA ════ -->
+<div id="viewList">
+  <div class="list-header">
+    <button type="button" class="hamburger" onclick="openAppMenu()" aria-label="Menu">
+      <span></span><span></span><span></span>
+    </button>
+    <h1 style="flex:1;margin:0 8px"><span>HERÓIS DE BUEIRO</span>Personagens</h1>
+    <button type="button" class="btn-new" id="btnNovo" onclick="novoPersonagem();return false;">+ Novo</button>
+  </div>
+  <div class="list-count" id="listCount">0 personagens</div>
+  <div class="search-box">
+    <input type="text" id="searchList" placeholder="Buscar" oninput="renderList()" />
+  </div>
+  <div id="charList"></div>
+</div>
+
+<!-- ════ FICHA ════ -->
+<div id="viewSheet">
+  <div class="sheet-top">
+    <button class="back" onclick="voltarLista()" title="Voltar">←</button>
+    <div class="sheet-avatar" id="sheetAvatar">?</div>
+    <div class="title">
+      <div class="n" id="sheetNome">Sem nome</div>
+      <div class="s" id="sheetSub">—</div>
+    </div>
+    <button type="button" class="hamburger" onclick="openAppMenu()" title="Menu" style="margin-right:6px">
+      <span></span><span></span><span></span>
+    </button>
+    <button class="menu-btn" onclick="toggleNav()" title="Seções">▦</button>
+  </div>
+
+  <div class="sheet-body">
+    <!-- INFO -->
+    <div class="tab-pane active" id="tab-info">
+      <div class="sec">
+        <h2>Informações</h2>
+        <div class="avatar-edit">
+          <div class="avatar-preview" id="avatarPreview">?</div>
+          <div class="avatar-actions">
+            <button type="button" onclick="document.getElementById('fotoInput').click()">📷 Escolher foto</button>
+            <button type="button" onclick="removerFoto()">Remover foto</button>
+          </div>
+          <input type="file" id="fotoInput" accept="image/*" style="display:none" onchange="onFotoChange(event)" />
+        </div>
+        <div class="field">
+          <label>Nome</label>
+          <input type="text" id="nome" placeholder="Nome do herói" oninput="onNomeChange()" />
+        </div>
+        <div class="field">
+          <label>Jogador</label>
+          <input type="text" id="jogador" placeholder="Seu nome" />
+        </div>
+        <div class="grid-2">
+          <div class="field">
+            <label>Classe</label>
+            <select id="classe" onchange="onClasseChange()">
+              <option value="">— Escolher —</option>
+              <option value="tanker">Tanker</option>
+              <option value="lutador">Lutador</option>
+              <option value="atirador">Atirador</option>
+              <option value="mago">Mago</option>
+              <option value="curandeiro">Curandeiro</option>
+              <option value="estrategista">Estrategista / Inventor</option>
+            </select>
+          </div>
+          <div class="field">
+            <label>Origem</label>
+            <select id="origem" onchange="onOrigemChange()">
+              <option value="">— Escolher —</option>
+              <option value="playboy">Playboy</option>
+              <option value="elemental">Elemental</option>
+              <option value="mago_alquimista">Mago / Alquimista</option>
+              <option value="bestial">Bestial</option>
+              <option value="mutante">Mutante</option>
+              <option value="experimento">Experimento / Super Soldado</option>
+              <option value="et">E.T.</option>
+              <option value="mercenario">Mercenário</option>
+              <option value="android">Android / I.A.</option>
+              <option value="asgardiano">Asgardiano / Valkiria</option>
+            </select>
+          </div>
+        </div>
+        <div class="grid-2">
+          <div class="field">
+            <label>Nível</label>
+            <input type="text" id="nivel" value="1" readonly />
+            <div class="hint">Fixo em 1 (playtest)</div>
+          </div>
+          <div class="field">
+            <label>Pontos de XP</label>
+            <input type="number" id="xpPontos" value="5" onchange="recalc()" oninput="recalc()" />
+            <div class="hint">5 pts · 1 nível = 1 ponto</div>
+          </div>
+        </div>
+        <div class="field">
+          <label>Elemento</label>
+          <input type="text" id="elemento" placeholder="Fogo, Água→Gelo, Magma…" />
+        </div>
+        <div class="field">
+          <label>Reputação (pontos)</label>
+          <input type="number" id="reputacao" value="0" onchange="updateRepLabel()" oninput="updateRepLabel()" />
+          <div class="hint" id="repLabel">Neutra (0)</div>
+        </div>
+        <div id="classDesc" class="desc-box" style="display:none"></div>
+        <div id="originDesc" class="desc-box" style="display:none"></div>
+        <div id="choiceRow" class="choice-row" style="display:none">
+          <div id="choiceControls" style="display:flex;flex-wrap:wrap;gap:8px;width:100%"></div>
+        </div>
+        <p class="hint" style="margin-top:10px">Classe e origem aplicam bônus automaticamente (não gastam XP).</p>
+      </div>
+    </div>
+
+    <!-- ATRIBUTOS -->
+    <div class="tab-pane" id="tab-attrs">
+      <div class="bestial-bar" id="bestialBar">
+        <div class="info">
+          <strong id="bestialTitle">Forma Bestial</strong>
+          <span id="bestialHint">−2 Car/Int · +2 For/Agi/Vig · −5 Mana ao transformar</span>
+        </div>
+        <button type="button" class="btn-transform" id="btnBestial" onclick="toggleBestial()">TRANSFORMAR</button>
+      </div>
+      <div class="pts-bar">
+        <span>XP: <strong id="ptsGastos">0</strong> / <strong id="ptsPoolLabel">5</strong></span>
+        <span id="ptsStatus" class="ok">só níveis manuais</span>
+      </div>
+      <div class="attr-radial" id="attrRadial">
+        <svg class="attr-svg" viewBox="0 0 200 200" id="attrLines"></svg>
+        <div class="attr-center"><span>ATRIBUTOS</span></div>
+      </div>
+      <p class="hint" style="text-align:center;margin-bottom:16px">Toque num atributo para ajustar · 0 Inexp. … 5 Mestre (+2d6)</p>
+      <div class="sec">
+        <h2>Testes</h2>
+        <div class="test-grid" id="testButtons"></div>
+        <div class="roll-out" id="testResult"></div>
+      </div>
+    </div>
+
+    <!-- COMBATE -->
+    <div class="tab-pane" id="tab-combate">
+      <div class="res-block">
+        <div class="res-label"><span>Pontos de Vida</span><span class="res-nums" id="pvNums">0 / 0</span></div>
+        <div class="res-bar-wrap">
+          <div class="res-ctrl">
+            <button type="button" onclick="adjRes('pv',-1)">−</button>
+          </div>
+          <div class="res-bar"><div class="res-bar-fill pv" id="pvFill" style="width:100%"></div></div>
+          <div class="res-ctrl">
+            <button type="button" onclick="adjRes('pv',1)">+</button>
+          </div>
+        </div>
+        <div class="grid-2" style="margin-top:8px">
+          <div class="field" style="margin:0">
+            <label>Atual</label>
+            <input type="number" id="pvAtual" value="0" onchange="syncBars()" oninput="syncBars()" />
+          </div>
+          <div class="field" style="margin:0">
+            <label>Máximo</label>
+            <input type="number" id="pvMax" value="0" onchange="syncBars()" oninput="syncBars()" />
+          </div>
+        </div>
+      </div>
+
+      <div class="res-block">
+        <div class="res-label"><span>Mana</span><span class="res-nums" id="manaNums">0 / 0</span></div>
+        <div class="res-bar-wrap">
+          <div class="res-ctrl"><button type="button" onclick="adjRes('mana',-1)">−</button></div>
+          <div class="res-bar"><div class="res-bar-fill mana" id="manaFill" style="width:100%"></div></div>
+          <div class="res-ctrl"><button type="button" onclick="adjRes('mana',1)">+</button></div>
+        </div>
+        <div class="grid-2" style="margin-top:8px">
+          <div class="field" style="margin:0">
+            <label>Atual</label>
+            <input type="number" id="manaAtual" value="0" onchange="syncBars()" oninput="syncBars()" />
+          </div>
+          <div class="field" style="margin:0">
+            <label>Máximo</label>
+            <input type="number" id="manaMax" value="0" onchange="syncBars()" oninput="syncBars()" />
+          </div>
+        </div>
+      </div>
+
+      <div class="def-row">
+        <div class="def-shield" id="defDisplay">0</div>
+        <div class="def-info">
+          <h3>Defesa</h3>
+          <div class="formula">Base da classe + Agilidade (editável)</div>
+          <input type="number" id="defesa" value="0" onchange="document.getElementById('defDisplay').textContent=this.value||0" oninput="document.getElementById('defDisplay').textContent=this.value||0" />
+        </div>
+      </div>
+
+      <button type="button" class="btn-primary" style="width:100%;padding:12px;border-radius:10px;margin-bottom:14px" onclick="sugerirCombate()">↻ Sugerir PV / Mana / Defesa</button>
+
+      <div class="sec">
+        <h2>Maestria de Ataques</h2>
+        <p class="hint" style="margin-bottom:10px">Acerto = 1d10 + bônus · N1:+2 · N2:+4 · N3:+6 · N4:+8 · N5:+10</p>
+        <div class="mae-item">
+          <div class="info"><div class="t">Corpo a Corpo</div><div class="b" id="bonusCorpo">+0</div></div>
+          <select id="maeCorpo" onchange="updateMastery()">
+            <option value="0">N0</option><option value="1">N1</option><option value="2">N2</option>
+            <option value="3">N3</option><option value="4">N4</option><option value="5">N5</option>
+          </select>
+          <button class="btn-roll" onclick="rolarAcerto('corpo')">🎲</button>
+        </div>
+        <div class="mae-item">
+          <div class="info"><div class="t">À Distância</div><div class="b" id="bonusDist">+0</div></div>
+          <select id="maeDist" onchange="updateMastery()">
+            <option value="0">N0</option><option value="1">N1</option><option value="2">N2</option>
+            <option value="3">N3</option><option value="4">N4</option><option value="5">N5</option>
+          </select>
+          <button class="btn-roll" onclick="rolarAcerto('dist')">🎲</button>
+        </div>
+        <div class="mae-item">
+          <div class="info"><div class="t">Magia / Feitiços</div><div class="b" id="bonusMagia">+0</div></div>
+          <select id="maeMagia" onchange="updateMastery()">
+            <option value="0">N0</option><option value="1">N1</option><option value="2">N2</option>
+            <option value="3">N3</option><option value="4">N4</option><option value="5">N5</option>
+          </select>
+          <button class="btn-roll" onclick="rolarAcerto('magia')">🎲</button>
+        </div>
+        <div class="roll-out" id="rollResult"></div>
+      </div>
+    </div>
+
+    <!-- INVENTÁRIO -->
+    <div class="tab-pane" id="tab-inv">
+      <div class="sec">
+        <h2>Inventário</h2>
+        <button type="button" class="btn-add-power" onclick="addItem()">+ Novo Item</button>
+        <div id="itemsList"></div>
+      </div>
+      <div class="sec">
+        <h2>Notas de equipamento</h2>
+        <textarea id="equip" placeholder="Observações gerais sobre equipamento…"></textarea>
+      </div>
+    </div>
+
+    <!-- PODERES / NOTAS -->
+    <div class="tab-pane" id="tab-poderes">
+      <div class="sec">
+        <h2>Poderes / Habilidades</h2>
+        <button type="button" class="btn-add-power" onclick="addPower()">+ Novo Poder</button>
+        <div id="powersList"></div>
+      </div>
+      <div class="sec">
+        <h2>Anotações</h2>
+        <textarea id="notas" placeholder="Notas gerais, mutação, etc…"></textarea>
+      </div>
+    </div>
+
+    <!-- EXPORT -->
+    <div class="tab-pane" id="tab-mais">
+      <div class="sec">
+        <h2>Salvar / Exportar</h2>
+        <div style="display:flex;flex-direction:column;gap:8px">
+          <button type="button" class="btn-primary" style="padding:14px;border-radius:10px" onclick="salvarAtual()">Salvar personagem</button>
+          <button type="button" class="btn-ghost" style="padding:14px;border-radius:10px" onclick="exportarJSON()">Exportar JSON</button>
+          <button type="button" class="btn-ghost" style="padding:14px;border-radius:10px" onclick="importarJSON()">Importar JSON</button>
+          <button type="button" class="btn-ghost" style="padding:14px;border-radius:10px;color:#f87171;border-color:#7f1d1d" onclick="deletarAtual()">Excluir personagem</button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <button class="fab" onclick="toggleNav()" title="Menu">▦</button>
+</div>
+
+<!-- Nav overlay -->
+<div class="nav-overlay" id="navOverlay" onclick="closeNav()"></div>
+<div class="nav-panel" id="navPanel">
+  <div class="nav-handle"></div>
+  <div class="nav-grid">
+    <button type="button" onclick="goTab('info')">INFORMAÇÕES</button>
+    <button type="button" onclick="goTab('attrs')">ATRIBUTOS</button>
+    <button type="button" onclick="goTab('combate')">COMBATE</button>
+    <button type="button" onclick="goTab('inv')">INVENTÁRIO</button>
+    <button type="button" onclick="goTab('poderes')">PODERES</button>
+    <button type="button" onclick="goTab('mais')">SALVAR</button>
+    <button type="button" onclick="closeNav();openLivroEmbed()">LIVRO</button>
+  </div>
+  <button type="button" class="nav-close" onclick="closeNav()">Fechar</button>
+</div>
+
+<!-- Attr edit modal -->
+<div class="modal-bg" id="attrModal">
+  <div class="modal">
+    <h3 id="attrModalTitle">Atributo</h3>
+    <div class="row">
+      <button type="button" onclick="modalAdj(-1)">−</button>
+      <input type="number" id="attrModalVal" value="0" />
+      <button type="button" onclick="modalAdj(1)">+</button>
+    </div>
+    <div class="hint" id="attrModalDice" style="text-align:center;margin-bottom:8px">—</div>
+    <div class="actions">
+      <button type="button" class="btn-ghost" onclick="closeAttrModal()">Cancelar</button>
+      <button type="button" class="btn-primary" onclick="confirmAttrModal()">OK</button>
+    </div>
+  </div>
+</div>
+
+<div class="toast" id="toast"></div>
+<input type="file" id="fileImport" accept=".json" style="display:none" onchange="onFileImport(event)" />
+
+<script>
+const ATTRS = ["forca","agilidade","carisma","inteligencia","feiticeria","vigor"];
+const ATTR_LABELS = {
+  forca:"Força", agilidade:"Agilidade", carisma:"Carisma",
+  inteligencia:"Inteligência", feiticeria:"Feitiçaria", vigor:"Vigor"
+};
+const ATTR_SHORT = {
+  forca:"FOR", agilidade:"AGI", carisma:"CAR",
+  inteligencia:"INT", feiticeria:"FEI", vigor:"VIG"
+};
+const STORAGE_KEY = "hdb_fichas_v3";
+const MAX_SLOTS = 20;
+
+const CLASSES = {
+  tanker: {
+    nome:"Tanker", pvBase:20, pvPorVigor:10, manaBase:5, manaPorFeit:2, defBase:7,
+    desc:"PV: 20+10/Vigor · Mana: 5+2/Feit · Def: 7+Agi\n+2 Vigor · +1 Força · Maestria Corpo N1",
+    attrBonus:{vigor:2,forca:1}, mastery:{corpo:1}
+  },
+  lutador: {
+    nome:"Lutador", pvBase:15, pvPorVigor:7, manaBase:7, manaPorFeit:3, defBase:5,
+    desc:"PV: 15+7/Vigor · Mana: 7+3/Feit · Def: 5+Agi\n+2 Força ou Agi · +1 Vigor · Corpo N2",
+    attrBonus:{vigor:1}, mastery:{corpo:2},
+    choiceNote:"+2 em Força OU Agilidade"
+  },
+  atirador: {
+    nome:"Atirador", pvBase:10, pvPorVigor:5, manaBase:7, manaPorFeit:3, defBase:3,
+    desc:"PV: 10+5/Vigor · Mana: 7+3/Feit · Def: 3+Agi\n+2 Agi · +1 Int ou Car · Distância N2",
+    attrBonus:{agilidade:2}, mastery:{dist:2},
+    choiceNote:"+1 Inteligência OU Carisma"
+  },
+  mago: {
+    nome:"Mago", pvBase:7, pvPorVigor:3, manaBase:10, manaPorFeit:8, defBase:3,
+    desc:"PV: 7+3/Vigor · Mana: 10+8/Feit · Def: 3+Agi\n+2 Feitiçaria · +1 Int ou Car · Magia N2",
+    attrBonus:{feiticeria:2}, mastery:{magia:2},
+    choiceNote:"+1 Inteligência OU Carisma"
+  },
+  curandeiro: {
+    nome:"Curandeiro", pvBase:9, pvPorVigor:4, manaBase:8, manaPorFeit:6, defBase:4,
+    desc:"PV: 9+4/Vigor · Mana: 8+6/Feit · Def: 4+Agi\n+2 Carisma · +1 Int ou Feit · Maestria N2 (escolha)",
+    attrBonus:{carisma:2}, mastery:{},
+    choiceNote:"+1 Int/Feit e Maestria N2"
+  },
+  estrategista: {
+    nome:"Estrategista", pvBase:10, pvPorVigor:4, manaBase:5, manaPorFeit:6, defBase:7,
+    desc:"PV: 10+4/Vigor · Mana: 5+6/Feit · Def: 7+Agi\n+2 Inteligência · +1 Car ou Feit · Maestria N2",
+    attrBonus:{inteligencia:2}, mastery:{},
+    choiceNote:"+1 Car/Feit e Maestria N2"
+  }
+};
+
+const ORIGENS = {
+  playboy: { nome:"Playboy", desc:"+1 Inteligência · −1 Carisma · Nanotecnologia", attrBonus:{inteligencia:1,carisma:-1} },
+  elemental: { nome:"Elemental", desc:"+1 Feitiçaria · −1 Vigor · Dominante/vulnerável a elementos · Fonte Elemental diária", attrBonus:{feiticeria:1,vigor:-1} },
+  mago_alquimista: { nome:"Mago/Alquimista", desc:"+2 Feitiçaria · −2 Força (ou −2 Vigor / −1 ambos) · 2 elementos", attrBonus:{feiticeria:2,forca:-2} },
+  bestial: { nome:"Bestial", desc:"Forma bestial (botão em Atributos): −2 Car/Int · +2 For/Agi/Vig · −5 Mana ao transformar. Fora da forma: atributos normais.", attrBonus:{} },
+  mutante: { nome:"Mutante", desc:"+1 em 2 atributos (escolha) · −1 Car vs humanos", attrBonus:{carisma:-1} },
+  experimento: { nome:"Experimento", desc:"+2 Força ou Agi · −1 Feitiçaria · Incansável", attrBonus:{feiticeria:-1} },
+  et: { nome:"E.T.", desc:"+1 em um atributo · −1 em outro", attrBonus:{} },
+  mercenario: { nome:"Mercenário", desc:"+1 Distância · +1 Agi · −1 Feitiçaria", attrBonus:{agilidade:1,feiticeria:-1}, mastery:{dist:1} },
+  android: { nome:"Android/I.A.", desc:"+2 Inteligência · sem Mentir/Persuadir/Intimidar com Carisma", attrBonus:{inteligencia:2} },
+  asgardiano: { nome:"Asgardiano", desc:"+1 For/Agi/Vig · +2 Feitiçaria", attrBonus:{feiticeria:2} }
+};
+
+let activeId = null;
+let modalAttr = null;
+let lastClassAttr = {}, lastOriginAttr = {}, lastChoiceAttr = {};
+let lastClassMastery = {}, lastOriginMastery = {};
+let bestialTransformed = false;
+let currentPowers = [];
+let currentItems = [];
+let currentFoto = "";
+const BESTIAL_BONUS = {forca:2, agilidade:2, vigor:2, carisma:-2, inteligencia:-2};
+const BESTIAL_MANA_COST = 5;
+
+function diceLabel(n) {
+  n = parseInt(n)||0;
+  if (n===0) return "—";
+  var s = n>0?1:-1, a=Math.abs(n), body;
+  if (a>=5) body="2d6"; else if (a===4) body="1d10"; else if (a===3) body="1d8"; else if (a===2) body="1d6"; else body="1d4";
+  return (s>0?"+":"−")+body;
+}
+function d(sides){ return sides<=0?0:Math.floor(Math.random()*sides)+1; }
+function rollTrainingDice(nivel) {
+  var n=parseInt(nivel)||0; if(!n) return {total:0,str:""};
+  var sign=n>0?1:-1, abs=Math.abs(n);
+  if(abs>=5){ var a=d(6),b=d(6); return {total:(a+b)*sign, str:" "+(sign>0?"+":"−")+"2d6("+a+"+"+b+")"}; }
+  var sides={1:4,2:6,3:8,4:10}[Math.min(abs,4)];
+  var r=d(sides); return {total:r*sign, str:" "+(sign>0?"+":"−")+"1d"+sides+"("+r+")"};
+}
+function masteryBonus(lvl){ var n=Math.max(0,parseInt(lvl)||0); if(n<=0)return 0; if(n>=5)return 10; return n*2; }
+
+function loadStore(){ try{ var r=localStorage.getItem(STORAGE_KEY); if(r){ var p=JSON.parse(r); if(!p||typeof p!=="object") return {activeId:null,chars:{}}; if(!p.chars||typeof p.chars!=="object") p.chars={}; return p; } }catch(e){ console.warn(e);} return {activeId:null,chars:{}}; }
+function saveStore(s){
+  try{ localStorage.setItem(STORAGE_KEY, JSON.stringify(s)); return true; }
+  catch(err){ console.error(err); toast("Sem espaço para salvar! Exporte um backup e remova fotos."); return false; }
+}
+
+function emptyState(){
+  return {
+    nome:"",jogador:"",classe:"",origem:"",nivel:"1",xpPontos:5,elemento:"",reputacao:0,
+    attrs:{forca:0,agilidade:0,carisma:0,inteligencia:0,feiticeria:0,vigor:0},
+    pvAtual:0,pvMax:0,manaAtual:0,manaMax:0,defesa:0,
+    maeCorpo:0,maeDist:0,maeMagia:0,equip:"",notas:"",powers:[],items:[],foto:"",bestialTransformed:false, created: Date.now()
+  };
+}
+
+function getAttr(a){ var el=document.getElementById("attr_"+a); return el?parseInt(el.value)||0:0; }
+function setAttr(a,v){ var el=document.getElementById("attr_"+a); if(el)el.value=v; }
+function addAttr(a,n){ setAttr(a, getAttr(a)+n); }
+
+function getState(){
+  var s={
+    nome:document.getElementById("nome").value,
+    jogador:document.getElementById("jogador").value,
+    classe:document.getElementById("classe").value,
+    origem:document.getElementById("origem").value,
+    nivel:"1",
+    xpPontos:parseInt(document.getElementById("xpPontos").value)||0,
+    elemento:document.getElementById("elemento").value,
+    reputacao:parseInt(document.getElementById("reputacao").value)||0,
+    attrs:{},
+    pvAtual:document.getElementById("pvAtual").value,
+    pvMax:document.getElementById("pvMax").value,
+    manaAtual:document.getElementById("manaAtual").value,
+    manaMax:document.getElementById("manaMax").value,
+    defesa:document.getElementById("defesa").value,
+    maeCorpo:document.getElementById("maeCorpo").value,
+    maeDist:document.getElementById("maeDist").value,
+    maeMagia:document.getElementById("maeMagia").value,
+    equip:document.getElementById("equip").value,
+    notas:document.getElementById("notas").value,
+    powers: currentPowers.slice(),
+    items: currentItems.slice(),
+    foto: currentFoto || "",
+    bestialTransformed:bestialTransformed
+  };
+  ATTRS.forEach(function(a){ s.attrs[a]=document.getElementById("attr_"+a)?document.getElementById("attr_"+a).value:0; });
+  s.lastChoiceAttr=Object.assign({},lastChoiceAttr);
+  s.choiceSel={};
+  document.querySelectorAll("#choiceControls select").forEach(function(el){ s.choiceSel[el.id]=el.value; });
+  return s;
+}
+
+function setState(s){
+  if(!s)s=emptyState();
+  document.getElementById("nome").value=s.nome||"";
+  document.getElementById("jogador").value=s.jogador||"";
+  document.getElementById("classe").value=s.classe||"";
+  document.getElementById("origem").value=s.origem||"";
+  document.getElementById("nivel").value="1";
+  document.getElementById("xpPontos").value=s.xpPontos!=null?s.xpPontos:5;
+  document.getElementById("elemento").value=s.elemento||"";
+  document.getElementById("reputacao").value=s.reputacao!=null?s.reputacao:0;
+  ATTRS.forEach(function(a){
+    var el=document.getElementById("attr_"+a);
+    if(el) el.value=(s.attrs&&s.attrs[a]!=null)?s.attrs[a]:0;
+  });
+  document.getElementById("pvAtual").value=s.pvAtual!=null?s.pvAtual:0;
+  document.getElementById("pvMax").value=s.pvMax!=null?s.pvMax:0;
+  document.getElementById("manaAtual").value=s.manaAtual!=null?s.manaAtual:0;
+  document.getElementById("manaMax").value=s.manaMax!=null?s.manaMax:0;
+  document.getElementById("defesa").value=s.defesa!=null?s.defesa:0;
+  document.getElementById("defDisplay").textContent=s.defesa!=null?s.defesa:0;
+  document.getElementById("maeCorpo").value=s.maeCorpo||0;
+  document.getElementById("maeDist").value=s.maeDist||0;
+  document.getElementById("maeMagia").value=s.maeMagia||0;
+  document.getElementById("equip").value=s.equip||"";
+  document.getElementById("notas").value=s.notas||"";
+  currentPowers = Array.isArray(s.powers) ? s.powers.map(cleanId) : [];
+  currentItems = Array.isArray(s.items) ? s.items.map(cleanId) : [];
+  currentFoto = okFoto(s.foto);
+  renderPowers();
+  renderItems();
+  updateFotoUI();
+
+  lastClassAttr={}; lastOriginAttr={}; lastChoiceAttr={};
+  lastClassMastery={}; lastOriginMastery={};
+  var ck=s.classe||"";
+  if(ck&&CLASSES[ck]){
+    lastClassAttr=Object.assign({},CLASSES[ck].attrBonus||{});
+    lastClassMastery=Object.assign({},CLASSES[ck].mastery||{});
+    var elc=document.getElementById("classDesc");
+    elc.style.display="block";
+    elc.textContent=CLASSES[ck].desc+(CLASSES[ck].choiceNote?"\n→ "+CLASSES[ck].choiceNote:"");
+  } else document.getElementById("classDesc").style.display="none";
+  var ok=s.origem||"";
+  if(ok&&ORIGENS[ok]){
+    lastOriginAttr=Object.assign({},ORIGENS[ok].attrBonus||{});
+    lastOriginMastery=Object.assign({},ORIGENS[ok].mastery||{});
+    var elo=document.getElementById("originDesc");
+    elo.style.display="block"; elo.textContent=ORIGENS[ok].desc;
+  } else document.getElementById("originDesc").style.display="none";
+
+  buildChoices();
+  var lc={};
+  Object.keys(s.lastChoiceAttr||{}).forEach(function(k){ var v=Number(s.lastChoiceAttr[k]); if(ATTRS.indexOf(k)>=0 && isFinite(v)) lc[k]=v; });
+  lastChoiceAttr=lc;
+  Object.keys(s.choiceSel||{}).forEach(function(id){ var el=document.getElementById(id); if(el) el.value=s.choiceSel[id]; });
+  // Bestial: values on sheet already include transform if it was active; just restore flag + UI
+  bestialTransformed = !!s.bestialTransformed;
+  updateBestialUI();
+  updateMastery(); updateRepLabel(); syncBars();
+  updateSheetHeader();
+  recalc();
+}
+
+function freeBonusFor(a){
+  var f=0;
+  if(lastClassAttr[a]) f+=lastClassAttr[a];
+  if(lastOriginAttr[a]) f+=lastOriginAttr[a];
+  if(lastChoiceAttr[a]) f+=lastChoiceAttr[a];
+  if(bestialTransformed && BESTIAL_BONUS[a]) f+=BESTIAL_BONUS[a];
+  return f;
+}
+
+function recalc(){
+  var gastos=0;
+  ATTRS.forEach(function(a){
+    var nivel=getAttr(a);
+    var free=freeBonusFor(a);
+    // Custo = níveis acima do bônus gratuito (classe/origem/bestial).
+    // Negativo NUNCA gasta XP: max(0, nivel - free)
+    // Ex: free +2, nivel 2 → 0 pts | free 0, nivel -2 → 0 pts | free 0, nivel 3 → 3 pts
+    var gastoAttr = Math.max(0, nivel - free);
+    gastos += gastoAttr;
+    updateAttrNode(a, nivel);
+  });
+  document.getElementById("ptsGastos").textContent=gastos;
+  var pool=parseInt(document.getElementById("xpPontos").value); if(isNaN(pool))pool=5;
+  document.getElementById("ptsPoolLabel").textContent=pool;
+  var st=document.getElementById("ptsStatus");
+  if(gastos>pool){ st.textContent="Acima dos "+pool+" pts manuais"; st.className="warn"; }
+  else { st.textContent=(pool-gastos)+" restante(s) · negativo não gasta XP"; st.className="ok"; }
+}
+
+function buildAttrUI(){
+  var radial=document.getElementById("attrRadial");
+  // remove old nodes
+  radial.querySelectorAll(".attr-node").forEach(function(n){ n.remove(); });
+  var positions = [
+    {a:"agilidade", x:50, y:11},
+    {a:"inteligencia", x:86, y:32},
+    {a:"feiticeria", x:86, y:68},
+    {a:"vigor", x:50, y:89},
+    {a:"carisma", x:14, y:68},
+    {a:"forca", x:14, y:32}
+  ];
+  // lines
+  var svg=document.getElementById("attrLines");
+  svg.innerHTML="";
+  positions.forEach(function(p){
+    var line=document.createElementNS("http://www.w3.org/2000/svg","line");
+    line.setAttribute("x1","100"); line.setAttribute("y1","100");
+    line.setAttribute("x2", String(p.x*2)); line.setAttribute("y2", String(p.y*2));
+    line.setAttribute("stroke","#4a1520"); line.setAttribute("stroke-width","2");
+    line.setAttribute("stroke-linecap","round");
+    svg.appendChild(line);
+  });
+  positions.forEach(function(p){
+    var node=document.createElement("div");
+    node.className="attr-node";
+    node.id="node_"+p.a;
+    node.style.left=p.x+"%"; node.style.top=p.y+"%";
+    node.style.transform="translate(-50%,-50%)";
+    node.innerHTML='<div class="val" id="val_'+p.a+'">0</div><div class="lab">'+ATTR_SHORT[p.a]+'</div><div class="dice-sm" id="dsm_'+p.a+'">—</div>';
+    node.onclick=function(){ openAttrModal(p.a); };
+    radial.appendChild(node);
+    // hidden input
+    if(!document.getElementById("attr_"+p.a)){
+      var inp=document.createElement("input");
+      inp.type="hidden"; inp.id="attr_"+p.a; inp.value="0";
+      document.body.appendChild(inp);
+    }
+  });
+  // test buttons
+  var tests=document.getElementById("testButtons");
+  tests.innerHTML="";
+  ATTRS.forEach(function(a){
+    var btn=document.createElement("button");
+    btn.type="button";
+    btn.innerHTML="🎲 "+ATTR_LABELS[a]+"<small id='tb_"+a+"'>—</small>";
+    btn.onclick=function(){ rolarTeste(a); };
+    tests.appendChild(btn);
+  });
+}
+
+function updateAttrNode(a, nivel){
+  var v=document.getElementById("val_"+a);
+  var d=document.getElementById("dsm_"+a);
+  var t=document.getElementById("tb_"+a);
+  var node=document.getElementById("node_"+a);
+  if(v) v.textContent=nivel;
+  if(d) d.textContent=diceLabel(nivel);
+  if(t) t.textContent=diceLabel(nivel);
+  if(node){
+    node.classList.toggle("has-val", nivel>0);
+    node.classList.toggle("neg", nivel<0);
+  }
+}
+
+function openAttrModal(a){
+  modalAttr=a;
+  document.getElementById("attrModalTitle").textContent=ATTR_LABELS[a];
+  document.getElementById("attrModalVal").value=getAttr(a);
+  document.getElementById("attrModalDice").textContent=diceLabel(getAttr(a));
+  document.getElementById("attrModal").classList.add("show");
+}
+function closeAttrModal(){ document.getElementById("attrModal").classList.remove("show"); modalAttr=null; }
+function modalAdj(n){
+  var el=document.getElementById("attrModalVal");
+  el.value=(parseInt(el.value)||0)+n;
+  document.getElementById("attrModalDice").textContent=diceLabel(el.value);
+}
+function confirmAttrModal(){
+  if(modalAttr){
+    setAttr(modalAttr, parseInt(document.getElementById("attrModalVal").value)||0);
+    recalc();
+    autoSave();
+  }
+  closeAttrModal();
+}
+
+function syncBars(){
+  var pa=parseInt(document.getElementById("pvAtual").value)||0;
+  var pm=parseInt(document.getElementById("pvMax").value)||0;
+  var ma=parseInt(document.getElementById("manaAtual").value)||0;
+  var mm=parseInt(document.getElementById("manaMax").value)||0;
+  document.getElementById("pvNums").textContent=pa+" / "+pm;
+  document.getElementById("manaNums").textContent=ma+" / "+mm;
+  var pw=pm>0?Math.min(100,Math.max(0,pa/pm*100)):0;
+  var mw=mm>0?Math.min(100,Math.max(0,ma/mm*100)):0;
+  document.getElementById("pvFill").style.width=pw+"%";
+  document.getElementById("manaFill").style.width=mw+"%";
+  document.getElementById("defDisplay").textContent=document.getElementById("defesa").value||0;
+}
+function adjRes(type, delta){
+  var id=type==="pv"?"pvAtual":"manaAtual";
+  var el=document.getElementById(id);
+  el.value=(parseInt(el.value)||0)+delta;
+  syncBars();
+}
+
+function updateMastery(){
+  ["maeCorpo","maeDist","maeMagia"].forEach(function(id,i){
+    var map=["bonusCorpo","bonusDist","bonusMagia"];
+    var lvl=parseInt(document.getElementById(id).value)||0;
+    document.getElementById(map[i]).textContent="+"+masteryBonus(lvl);
+  });
+}
+function updateRepLabel(){
+  var r=parseInt(document.getElementById("reputacao").value)||0;
+  var el=document.getElementById("repLabel");
+  if(r>=100) el.textContent="Positiva (+1 Car vs população)";
+  else if(r<=-100) el.textContent="Negativa (−2 Car vs população)";
+  else el.textContent="Neutra (+1 Car para intimidar civil)";
+}
+
+function reverseAttrMap(map){ Object.keys(map).forEach(function(a){ addAttr(a,-map[a]); }); }
+function applyAttrMap(map){ Object.keys(map).forEach(function(a){ addAttr(a,map[a]); }); }
+function setMasteryAtLeast(id,level){ var el=document.getElementById(id); if((parseInt(el.value)||0)<level) el.value=String(level); }
+function lowerMasteryIfWas(id,prev){ var el=document.getElementById(id); if(prev!=null&&(parseInt(el.value)||0)===prev) el.value="0"; }
+function applyMasteryMap(map,mode){
+  if(map.corpo!=null){ if(mode==="apply") setMasteryAtLeast("maeCorpo",map.corpo); else lowerMasteryIfWas("maeCorpo",map.corpo); }
+  if(map.dist!=null){ if(mode==="apply") setMasteryAtLeast("maeDist",map.dist); else lowerMasteryIfWas("maeDist",map.dist); }
+  if(map.magia!=null){ if(mode==="apply") setMasteryAtLeast("maeMagia",map.magia); else lowerMasteryIfWas("maeMagia",map.magia); }
+}
+
+function clearChoices(){
+  reverseAttrMap(lastChoiceAttr); lastChoiceAttr={};
+  document.getElementById("choiceControls").innerHTML="";
+  document.getElementById("choiceRow").style.display="none";
+}
+function buildChoices(){
+  clearChoices();
+  var classKey=document.getElementById("classe").value;
+  var originKey=document.getElementById("origem").value;
+  var html="", has=false;
+  function sel(id,label,opts,onchange){
+    has=true;
+    return '<div class="field"><label>'+label+'</label><select id="'+id+'" onchange="'+onchange+'"><option value="">—</option>'+
+      opts.map(function(o){return '<option value="'+o.v+'">'+o.l+'</option>';}).join("")+'</select></div>';
+  }
+  if(classKey==="lutador") html+=sel("choice_lutador","Lutador +2",[{v:"forca",l:"Força"},{v:"agilidade",l:"Agilidade"}],"applyChoiceLutador()");
+  if(classKey==="atirador") html+=sel("choice_atirador","Atirador +1",[{v:"inteligencia",l:"Inteligência"},{v:"carisma",l:"Carisma"}],"applyChoiceGeneric('choice_atirador',1,['inteligencia','carisma'])");
+  if(classKey==="mago") html+=sel("choice_mago","Mago +1",[{v:"inteligencia",l:"Inteligência"},{v:"carisma",l:"Carisma"}],"applyChoiceGeneric('choice_mago',1,['inteligencia','carisma'])");
+  if(classKey==="curandeiro"){
+    html+=sel("choice_curand_attr","Curandeiro +1",[{v:"inteligencia",l:"Inteligência"},{v:"feiticeria",l:"Feitiçaria"}],"applyChoiceGeneric('choice_curand_attr',1,['inteligencia','feiticeria'])");
+    html+=sel("choice_curand_mae","Maestria N2",[{v:"corpo",l:"Corpo"},{v:"dist",l:"Distância"},{v:"magia",l:"Magia"}],"applyChoiceMastery('choice_curand_mae')");
+  }
+  if(classKey==="estrategista"){
+    html+=sel("choice_est_attr","Estrategista +1",[{v:"carisma",l:"Carisma"},{v:"feiticeria",l:"Feitiçaria"}],"applyChoiceGeneric('choice_est_attr',1,['carisma','feiticeria'])");
+    html+=sel("choice_est_mae","Maestria N2",[{v:"corpo",l:"Corpo"},{v:"dist",l:"Distância"},{v:"magia",l:"Magia"}],"applyChoiceMastery('choice_est_mae')");
+  }
+  if(originKey==="experimento") html+=sel("choice_exp","Experimento +2",[{v:"forca",l:"Força"},{v:"agilidade",l:"Agilidade"}],"applyChoiceGeneric('choice_exp',2,['forca','agilidade'])");
+  if(originKey==="et"){
+    var all=ATTRS.map(function(a){return {v:a,l:ATTR_LABELS[a]};});
+    html+=sel("choice_et_plus","E.T. +1",all,"applyChoiceET()");
+    html+=sel("choice_et_minus","E.T. −1",all,"applyChoiceET()");
+  }
+  if(originKey==="asgardiano") html+=sel("choice_asg","Asgardiano +1",[{v:"forca",l:"Força"},{v:"agilidade",l:"Agilidade"},{v:"vigor",l:"Vigor"}],"applyChoiceGeneric('choice_asg',1,['forca','agilidade','vigor'])");
+  if(originKey==="mutante"){
+    var all=ATTRS.map(function(a){return {v:a,l:ATTR_LABELS[a]};});
+    html+=sel("choice_mut1","Mutante +1 (1º)",all,"applyChoiceMutante()");
+    html+=sel("choice_mut2","Mutante +1 (2º)",all,"applyChoiceMutante()");
+  }
+  if(originKey==="mago_alquimista") html+=sel("choice_alq_pen","Penalidade",[{v:"forca",l:"−2 Força"},{v:"vigor",l:"−2 Vigor"},{v:"ambos",l:"−1 Força e Vigor"}],"applyChoiceAlquimista()");
+  if(has){ document.getElementById("choiceControls").innerHTML=html; document.getElementById("choiceRow").style.display="flex"; }
+}
+
+function pickChoiceKeys(keys){
+  var m={}; keys.forEach(function(k){ if(lastChoiceAttr[k]){ m[k]=lastChoiceAttr[k]; delete lastChoiceAttr[k]; } }); return m;
+}
+function applyChoiceLutador(){
+  reverseAttrMap(pickChoiceKeys(["forca","agilidade"]));
+  var v=document.getElementById("choice_lutador").value; if(!v){recalc();return;}
+  lastChoiceAttr[v]=(lastChoiceAttr[v]||0)+2; addAttr(v,2); recalc(); sugerirCombateQuiet();
+}
+function applyChoiceGeneric(sid,amount,list){
+  reverseAttrMap(pickChoiceKeys(list));
+  var v=document.getElementById(sid).value; if(!v){recalc();return;}
+  lastChoiceAttr[v]=(lastChoiceAttr[v]||0)+amount; addAttr(v,amount); recalc(); sugerirCombateQuiet();
+}
+function applyChoiceMastery(sid){
+  var v=document.getElementById(sid).value; if(!v)return;
+  setMasteryAtLeast(v==="corpo"?"maeCorpo":v==="dist"?"maeDist":"maeMagia",2); updateMastery();
+}
+function applyChoiceET(){
+  reverseAttrMap(pickChoiceKeys(ATTRS.slice()));
+  var p=document.getElementById("choice_et_plus").value, m=document.getElementById("choice_et_minus").value;
+  if(p){lastChoiceAttr[p]=(lastChoiceAttr[p]||0)+1;addAttr(p,1);}
+  if(m){lastChoiceAttr[m]=(lastChoiceAttr[m]||0)-1;addAttr(m,-1);}
+  recalc();
+}
+function applyChoiceMutante(){
+  reverseAttrMap(pickChoiceKeys(ATTRS.slice()));
+  var a=document.getElementById("choice_mut1").value, b=document.getElementById("choice_mut2").value;
+  if(a){lastChoiceAttr[a]=(lastChoiceAttr[a]||0)+1;addAttr(a,1);}
+  if(b){lastChoiceAttr[b]=(lastChoiceAttr[b]||0)+1;addAttr(b,1);}
+  recalc();
+}
+function applyChoiceAlquimista(){
+  var curF=lastChoiceAttr.forca||0, curV=lastChoiceAttr.vigor||0;
+  if(curF){addAttr("forca",-curF);delete lastChoiceAttr.forca;}
+  if(curV){addAttr("vigor",-curV);delete lastChoiceAttr.vigor;}
+  var v=document.getElementById("choice_alq_pen").value;
+  if(v==="vigor"){ lastChoiceAttr.forca=2;addAttr("forca",2); lastChoiceAttr.vigor=-2;addAttr("vigor",-2); }
+  else if(v==="ambos"){ lastChoiceAttr.forca=1;addAttr("forca",1); lastChoiceAttr.vigor=-1;addAttr("vigor",-1); }
+  recalc();
+}
+
+function sugerirCombateQuiet(){
+  var c=CLASSES[document.getElementById("classe").value];
+  var vigor=getAttr("vigor"), agi=getAttr("agilidade"), feit=getAttr("feiticeria");
+  var pvMax=0,manaMax=0,def=0;
+  if(c){ pvMax=c.pvBase+c.pvPorVigor*Math.max(0,vigor); manaMax=c.manaBase+c.manaPorFeit*Math.max(0,feit); def=c.defBase+Math.max(0,agi); }
+  else { pvMax=5*Math.max(0,vigor); manaMax=3*Math.max(0,feit); def=Math.max(0,agi); }
+  document.getElementById("pvMax").value=pvMax;
+  document.getElementById("manaMax").value=manaMax;
+  document.getElementById("defesa").value=def;
+  document.getElementById("defDisplay").textContent=def;
+  if(!(parseInt(document.getElementById("pvAtual").value)||0)) document.getElementById("pvAtual").value=pvMax;
+  if(!(parseInt(document.getElementById("manaAtual").value)||0)) document.getElementById("manaAtual").value=manaMax;
+  syncBars();
+}
+function sugerirCombate(){ sugerirCombateQuiet(); toast("Sugestão aplicada"); }
+
+function updateBestialUI(){
+  var bar = document.getElementById("bestialBar");
+  var btn = document.getElementById("btnBestial");
+  var origem = document.getElementById("origem").value;
+  if(origem === "bestial"){
+    bar.classList.add("show");
+    if(bestialTransformed){
+      btn.textContent = "DESTRANSFORMAR";
+      btn.classList.add("on");
+      document.getElementById("bestialTitle").textContent = "Forma Bestial ATIVA";
+    } else {
+      btn.textContent = "TRANSFORMAR";
+      btn.classList.remove("on");
+      document.getElementById("bestialTitle").textContent = "Forma Bestial";
+    }
+  } else {
+    bar.classList.remove("show");
+    // If switched origin while transformed, reverse bonuses
+    if(bestialTransformed){
+      Object.keys(BESTIAL_BONUS).forEach(function(a){ addAttr(a, -BESTIAL_BONUS[a]); });
+      bestialTransformed = false;
+    }
+  }
+}
+
+function toggleBestial(){
+  if(document.getElementById("origem").value !== "bestial") return;
+  if(!bestialTransformed){
+    // Transform: apply bonuses + spend 5 mana
+    Object.keys(BESTIAL_BONUS).forEach(function(a){ addAttr(a, BESTIAL_BONUS[a]); });
+    bestialTransformed = true;
+    var mana = parseInt(document.getElementById("manaAtual").value) || 0;
+    document.getElementById("manaAtual").value = Math.max(0, mana - BESTIAL_MANA_COST);
+    syncBars();
+    toast("Forma bestial ativada (−5 Mana)");
+  } else {
+    // Detransform: remove bonuses
+    Object.keys(BESTIAL_BONUS).forEach(function(a){ addAttr(a, -BESTIAL_BONUS[a]); });
+    bestialTransformed = false;
+    toast("Forma bestial desativada");
+  }
+  updateBestialUI();
+  recalc();
+}
+
+function onClasseChange(){
+  var key=document.getElementById("classe").value;
+  var el=document.getElementById("classDesc");
+  if(key&&CLASSES[key]){ el.style.display="block"; el.textContent=CLASSES[key].desc+(CLASSES[key].choiceNote?"\n→ "+CLASSES[key].choiceNote:""); }
+  else el.style.display="none";
+  reverseAttrMap(lastClassAttr); applyMasteryMap(lastClassMastery,"reverse");
+  lastClassAttr={}; lastClassMastery={};
+  if(key&&CLASSES[key]){
+    var c=CLASSES[key];
+    if(c.attrBonus){ lastClassAttr=Object.assign({},c.attrBonus); applyAttrMap(lastClassAttr); }
+    if(c.mastery){ lastClassMastery=Object.assign({},c.mastery); applyMasteryMap(lastClassMastery,"apply"); }
+  }
+  updateMastery(); buildChoices(); recalc(); sugerirCombateQuiet(); updateSheetHeader();
+  if(key) toast("Classe aplicada");
+}
+function onOrigemChange(){
+  var key=document.getElementById("origem").value;
+  var el=document.getElementById("originDesc");
+  if(key&&ORIGENS[key]){ el.style.display="block"; el.textContent=ORIGENS[key].desc; }
+  else el.style.display="none";
+  reverseAttrMap(lastOriginAttr); applyMasteryMap(lastOriginMastery,"reverse");
+  lastOriginAttr={}; lastOriginMastery={};
+  if(key&&ORIGENS[key]){
+    var o=ORIGENS[key];
+    if(o.attrBonus){ lastOriginAttr=Object.assign({},o.attrBonus); applyAttrMap(lastOriginAttr); }
+    if(o.mastery){ lastOriginMastery=Object.assign({},o.mastery); applyMasteryMap(lastOriginMastery,"apply"); }
+  }
+  updateMastery(); buildChoices(); updateBestialUI(); recalc(); sugerirCombateQuiet(); updateSheetHeader();
+  if(key) toast("Origem aplicada");
+}
+
+function rolarAcerto(tipo){
+  var ids={corpo:"maeCorpo",dist:"maeDist",magia:"maeMagia"};
+  var nomes={corpo:"Corpo a Corpo",dist:"À Distância",magia:"Magia"};
+  var lvl=parseInt(document.getElementById(ids[tipo]).value)||0;
+  var bonus=masteryBonus(lvl), base=d(10);
+  document.getElementById("rollResult").textContent="Acerto ("+nomes[tipo]+"): 1d10("+base+") + "+bonus+" = "+(base+bonus);
+}
+function rolarTeste(attr){
+  var nivel=getAttr(attr), base=d(10), tr=rollTrainingDice(nivel);
+  document.getElementById("testResult").textContent="Teste de "+ATTR_LABELS[attr]+": 1d10("+base+")"+tr.str+" = "+(base+tr.total);
+}
+
+/* ── Views / nav ── */
+function renderList(){
+  var store=loadStore();
+  var q=(document.getElementById("searchList").value||"").toLowerCase();
+  var list=document.getElementById("charList");
+  var ids=Object.keys(store.chars);
+  document.getElementById("listCount").textContent=(ids.length===1?"1 personagem":ids.length+" personagens");
+  list.innerHTML="";
+  if(!ids.length){ list.innerHTML='<div class="empty-list">Nenhum personagem.<br/><br/><button type="button" class="btn-new" style="display:inline-block;margin-top:8px" onclick="novoPersonagem()">+ Criar personagem</button></div>'; return; }
+  ids.sort(function(a,b){ return (store.chars[b].created||0)-(store.chars[a].created||0); });
+  ids.forEach(function(id){
+    var c=store.chars[id];
+    var nome=(c.nome&&c.nome.trim())||"Sem nome";
+    if(q && nome.toLowerCase().indexOf(q)<0 && (c.classe||"").indexOf(q)<0) return;
+    var classe=c.classe&&CLASSES[c.classe]?CLASSES[c.classe].nome:(c.classe||"—");
+    var origem=c.origem&&ORIGENS[c.origem]?ORIGENS[c.origem].nome:"";
+    var meta=[classe,origem].filter(Boolean).join(" · ");
+    var initial=nome.charAt(0).toUpperCase();
+    var date=c.created?new Date(c.created).toLocaleDateString("pt-BR"):"";
+    var card=document.createElement("div");
+    card.className="char-card";
+    var fotoOk = okFoto(c.foto);
+    var avHtml = fotoOk
+      ? '<img src="'+fotoOk+'" alt="">'
+      : esc(initial);
+    card.innerHTML='<div class="char-avatar">'+avHtml+'</div>'+
+      '<div class="char-info"><div class="name">'+esc(nome)+'</div><div class="meta">'+esc(meta)+'</div>'+
+      (date?'<div class="date">Criado em '+date+'</div>':'')+'</div>'+
+      '<button class="btn-access" type="button">Acessar Ficha</button>';
+    card.querySelector(".btn-access").onclick=function(e){ e.stopPropagation(); abrirFicha(id); };
+    card.onclick=function(){ abrirFicha(id); };
+    list.appendChild(card);
+  });
+}
+function esc(t){ return String(t).replace(/&/g,"&amp;").replace(/</g,"&lt;").replace(/>/g,"&gt;"); }
+
+function abrirFicha(id){
+  if(activeId){ var st=loadStore(); if(st.chars[activeId]){ st.chars[activeId]=getState(); saveStore(st); } }
+  activeId=id;
+  var store=loadStore(); store.activeId=id; saveStore(store);
+  setState(store.chars[id]||emptyState());
+  document.getElementById("viewList").style.display="none";
+  document.getElementById("viewSheet").style.display="block";
+  goTab("info");
+}
+function voltarLista(){
+  salvarAtual(true);
+  document.getElementById("viewSheet").style.display="none";
+  document.getElementById("viewList").style.display="block";
+  renderList();
+}
+
+function updateFotoUI(){
+  var prev = document.getElementById("avatarPreview");
+  var sheet = document.getElementById("sheetAvatar");
+  var initial = (document.getElementById("nome").value || "?").charAt(0).toUpperCase();
+  if(currentFoto){
+    prev.innerHTML = '<img src="'+currentFoto+'" alt="">';
+    sheet.innerHTML = '<img src="'+currentFoto+'" alt="">';
+  } else {
+    prev.textContent = initial;
+    sheet.textContent = initial;
+  }
+}
+function onFotoChange(e){
+  var file = e.target.files && e.target.files[0];
+  if(!file) return;
+  var reader = new FileReader();
+  reader.onload = function(){
+    resizeImage(reader.result, 256, function(small){
+      currentFoto = small;
+      updateFotoUI();
+      autoSave();
+      toast("Foto adicionada");
+    }, function(){ toast("Imagem inválida"); });
+  };
+  reader.readAsDataURL(file);
+  e.target.value = "";
+}
+function resizeImage(dataUrl, maxW, cb, onerr){
+  var img = new Image();
+  img.onload = function(){
+    var k = Math.min(1, maxW / Math.max(img.width, img.height));
+    var w = Math.max(1, Math.round(img.width * k)), h = Math.max(1, Math.round(img.height * k));
+    var c = document.createElement("canvas");
+    c.width = w; c.height = h;
+    c.getContext("2d").drawImage(img, 0, 0, w, h);
+    cb(c.toDataURL("image/jpeg", 0.8));
+  };
+  img.onerror = function(){ if(onerr) onerr(); };
+  img.src = dataUrl;
+}
+function removerFoto(){
+  currentFoto = "";
+  updateFotoUI();
+  toast("Foto removida");
+}
+
+function emptyPower(){
+  return {
+    id: "pw_"+Date.now()+"_"+Math.floor(Math.random()*999),
+    nome: "Novo Poder",
+    nivel: "1",
+    dano: "",
+    tipo: "",
+    alcance: "",
+    custo: "",
+    ataqueTipo: "",
+    notas: "",
+    open: true
+  };
+}
+function emptyItem(){
+  return {
+    id: "it_"+Date.now()+"_"+Math.floor(Math.random()*999),
+    nome: "Novo Item",
+    qtd: "1",
+    efeito: "",
+    bonus: "",
+    tipo: "",
+    notas: "",
+    open: true
+  };
+}
+function addItem(){
+  currentItems.push(emptyItem());
+  renderItems();
+  toast("Item adicionado");
+}
+function removeItem(id){
+  appConfirm("Remover este item?", "Remover").then(function(ok){ if(!ok) return; _doRemItem(id); }); return;}
+function _doRemItem(id){
+  currentItems = currentItems.filter(function(p){ return p.id !== id; });
+  renderItems();
+}
+function toggleItem(id){
+  currentItems.forEach(function(p){ if(p.id===id) p.open = !p.open; });
+  renderItems();
+}
+function updateItem(id, field, value){
+  currentItems.forEach(function(p){ if(p.id===id) p[field] = value; });
+  var nameEl = document.getElementById("iname_"+id);
+  var meta = document.getElementById("imeta_"+id);
+  if(field === "nome" && nameEl) nameEl.textContent = value || "Sem nome";
+  var p = currentItems.find(function(x){ return x.id===id; });
+  if(meta && p) meta.innerHTML = itemMetaHtml(p);
+}
+function itemMetaHtml(p){
+  var parts = [];
+  if(p.qtd) parts.push("x<span>"+esc(p.qtd)+"</span>");
+  if(p.efeito) parts.push(esc(p.efeito));
+  if(p.bonus) parts.push("Bônus: <span>"+esc(p.bonus)+"</span>");
+  if(p.tipo) parts.push(esc(p.tipo));
+  return parts.join(" · ") || "—";
+}
+function renderItems(){
+  var list = document.getElementById("itemsList");
+  if(!list) return;
+  if(!currentItems.length){
+    list.innerHTML = '<p class="hint" style="text-align:center;padding:20px 0">Nenhum item. Toque em <b>+ Novo Item</b>.</p>';
+    return;
+  }
+  list.innerHTML = currentItems.map(function(p){
+    var openCls = p.open ? " open" : "";
+    var id = p.id;
+    var html = "";
+    html += '<div class="power-card' + openCls + '" id="icard_' + id + '">';
+    html += '<div class="power-head" data-iid="' + id + '">';
+    html += '<span class="arrow">▶</span>';
+    html += '<div class="pinfo"><div class="pname" id="iname_' + id + '">' + esc(p.nome||"Sem nome") + '</div>';
+    html += '<div class="pmeta" id="imeta_' + id + '">' + itemMetaHtml(p) + '</div></div>';
+    html += '</div>';
+    html += '<div class="power-body">';
+    html += '<div class="field"><label>Nome</label><input type="text" data-if="nome" data-iid="' + id + '" value="' + escAttr(p.nome) + '" /></div>';
+    html += '<div class="grid-2">';
+    html += '<div class="field"><label>Quantidade</label><input type="text" data-if="qtd" data-iid="' + id + '" value="' + escAttr(p.qtd) + '" /></div>';
+    html += '<div class="field"><label>Tipo</label><input type="text" placeholder="Arma, Armadura, Consumível…" data-if="tipo" data-iid="' + id + '" value="' + escAttr(p.tipo) + '" /></div>';
+    html += '</div>';
+    html += '<div class="field"><label>O que dá / Efeito</label><input type="text" placeholder="ex: +1 Defesa, cura 1d6 PV…" data-if="efeito" data-iid="' + id + '" value="' + escAttr(p.efeito) + '" /></div>';
+    html += '<div class="field"><label>Bônus</label><input type="text" placeholder="ex: +2 no ataque, +1d4 dano…" data-if="bonus" data-iid="' + id + '" value="' + escAttr(p.bonus) + '" /></div>';
+    html += '<div class="field"><label>Anotações</label><textarea data-if="notas" data-iid="' + id + '">' + esc(p.notas||"") + '</textarea></div>';
+    html += '<button type="button" class="btn-del-power" data-idel="' + id + '">Excluir item</button>';
+    html += '</div></div>';
+    return html;
+  }).join("");
+
+  list.querySelectorAll(".power-head[data-iid]").forEach(function(el){
+    el.addEventListener("click", function(){ toggleItem(el.getAttribute("data-iid")); });
+  });
+  list.querySelectorAll("[data-idel]").forEach(function(btn){
+    btn.addEventListener("click", function(){ removeItem(btn.getAttribute("data-idel")); });
+  });
+  list.querySelectorAll("input[data-if], textarea[data-if]").forEach(function(inp){
+    var h = function(){ updateItem(inp.getAttribute("data-iid"), inp.getAttribute("data-if"), inp.value); };
+    inp.addEventListener("change", h);
+    inp.addEventListener("input", h);
+  });
+}
+
+function addPower(){
+  currentPowers.push(emptyPower());
+  renderPowers();
+  toast("Poder adicionado");
+}
+function removePower(id){
+  appConfirm("Remover este poder?", "Remover").then(function(ok){ if(!ok) return; _doRemPower(id); }); return;}
+function _doRemPower(id){
+  currentPowers = currentPowers.filter(function(p){ return p.id !== id; });
+  renderPowers();
+}
+function togglePower(id){
+  currentPowers.forEach(function(p){ if(p.id===id) p.open = !p.open; });
+  renderPowers();
+}
+function updatePower(id, field, value){
+  currentPowers.forEach(function(p){
+    if(p.id===id) p[field] = value;
+  });
+  // update meta without full re-render for nome/dano
+  var meta = document.getElementById("pmeta_"+id);
+  var nameEl = document.getElementById("pname_"+id);
+  if(field === "nome" && nameEl) nameEl.textContent = value || "Sem nome";
+  if(meta){
+    var p = currentPowers.find(function(x){ return x.id===id; });
+    if(p) meta.innerHTML = powerMetaHtml(p);
+  }
+}
+function powerMetaHtml(p){
+  var parts = [];
+  if(p.nivel) parts.push("Nível <span>"+esc(p.nivel)+"</span>");
+  if(p.dano) parts.push("Dano: <span>"+esc(p.dano)+"</span>");
+  if(p.custo) parts.push("Custo: <span>"+esc(p.custo)+"</span>");
+  if(p.tipo) parts.push(esc(p.tipo));
+  if(p.ataqueTipo){
+    var labels = {corpo:"Corpo a Corpo",dist:"À Distância",magia:"Magia"};
+    parts.push("<span>"+(labels[p.ataqueTipo]||p.ataqueTipo)+"</span>");
+  }
+  return parts.join(" · ") || "—";
+}
+function renderPowers(){
+  var list = document.getElementById("powersList");
+  if(!list) return;
+  if(!currentPowers.length){
+    list.innerHTML = '<p class="hint" style="text-align:center;padding:20px 0">Nenhum poder ainda. Toque em <b>+ Novo Poder</b>.</p>';
+    return;
+  }
+  list.innerHTML = currentPowers.map(function(p){
+    var openCls = p.open ? " open" : "";
+    var id = p.id;
+    var html = "";
+    html += '<div class="power-card' + openCls + '" id="pcard_' + id + '">';
+    html += '<div class="power-head" data-id="' + id + '">';
+    html += '<span class="arrow">▶</span>';
+    html += '<div class="pinfo"><div class="pname" id="pname_' + id + '">' + esc(p.nome||"Sem nome") + '</div>';
+    html += '<div class="pmeta" id="pmeta_' + id + '">' + powerMetaHtml(p) + '</div></div>';
+    if(p.dano) html += '<button type="button" class="btn-roll-power" data-roll="' + id + '">🎲 Dano</button>';
+    html += '</div>';
+    html += '<div class="power-body">';
+    html += '<div class="field"><label>Nome</label><input type="text" data-f="nome" data-id="' + id + '" value="' + escAttr(p.nome) + '" /></div>';
+    html += '<div class="grid-2">';
+    html += '<div class="field"><label>Nível</label><input type="text" data-f="nivel" data-id="' + id + '" value="' + escAttr(p.nivel) + '" /></div>';
+    html += '<div class="field"><label>Dano</label><input type="text" placeholder="ex: 2d6+3" data-f="dano" data-id="' + id + '" value="' + escAttr(p.dano) + '" /></div>';
+    html += '</div><div class="grid-2">';
+    html += '<div class="field"><label>Tipo de dano</label><input type="text" placeholder="Fogo, Físico…" data-f="tipo" data-id="' + id + '" value="' + escAttr(p.tipo) + '" /></div>';
+    html += '<div class="field"><label>Custo (Mana)</label><input type="text" placeholder="ex: 3" data-f="custo" data-id="' + id + '" value="' + escAttr(p.custo) + '" /></div>';
+    html += '</div>';
+    html += '<div class="field"><label>Alcance</label><input type="text" placeholder="Corpo a corpo, 10m…" data-f="alcance" data-id="' + id + '" value="' + escAttr(p.alcance) + '" /></div>';
+    html += '<div class="field"><label>Teste de ataque (maestria)</label>';
+    html += '<div class="atk-row">';
+    html += '<select data-f="ataqueTipo" data-id="' + id + '">';
+    html += '<option value="">— Nenhum —</option>';
+    html += '<option value="corpo"' + (p.ataqueTipo==="corpo"?" selected":"") + '>Corpo a Corpo</option>';
+    html += '<option value="dist"' + (p.ataqueTipo==="dist"?" selected":"") + '>À Distância</option>';
+    html += '<option value="magia"' + (p.ataqueTipo==="magia"?" selected":"") + '>Magia / Feitiços</option>';
+    html += '</select>';
+    html += '<button type="button" class="btn-atk-test" data-atk="' + id + '">🎲 Testar acerto</button>';
+    html += '</div>';
+    html += '<div class="hint">Usa 1d10 + bônus da maestria (N1=+2 … N5=+10)</div></div>';
+    html += '<div class="field"><label>Anotações</label><textarea data-f="notas" data-id="' + id + '">' + esc(p.notas||"") + '</textarea></div>';
+    html += '<button type="button" class="btn-del-power" data-del="' + id + '">Excluir poder</button>';
+    html += '</div></div>';
+    return html;
+  }).join("");
+
+  list.querySelectorAll(".power-head").forEach(function(el){
+    el.addEventListener("click", function(e){
+      if(e.target.closest("[data-roll]")) return;
+      togglePower(el.getAttribute("data-id"));
+    });
+  });
+  list.querySelectorAll("[data-roll]").forEach(function(btn){
+    btn.addEventListener("click", function(e){
+      e.stopPropagation();
+      rolarPoder(btn.getAttribute("data-roll"));
+    });
+  });
+  list.querySelectorAll("[data-atk]").forEach(function(btn){
+    btn.addEventListener("click", function(e){
+      e.stopPropagation();
+      rolarAcertoPoder(btn.getAttribute("data-atk"));
+    });
+  });
+  list.querySelectorAll("[data-del]").forEach(function(btn){
+    btn.addEventListener("click", function(){ removePower(btn.getAttribute("data-del")); });
+  });
+  list.querySelectorAll("input[data-f], textarea[data-f], select[data-f]").forEach(function(inp){
+    var handler = function(){
+      updatePower(inp.getAttribute("data-id"), inp.getAttribute("data-f"), inp.value);
+    };
+    inp.addEventListener("change", handler);
+    inp.addEventListener("input", handler);
+  });
+}
+
+function rolarAcertoPoder(id){
+  var p = currentPowers.find(function(x){ return x.id===id; });
+  if(!p) return;
+  var tipo = p.ataqueTipo;
+  if(!tipo){
+    toast("Escolha o tipo de ataque no poder");
+    return;
+  }
+  var ids = {corpo:"maeCorpo", dist:"maeDist", magia:"maeMagia"};
+  var nomes = {corpo:"Corpo a Corpo", dist:"À Distância", magia:"Magia"};
+  var el = document.getElementById(ids[tipo]);
+  var lvl = el ? (parseInt(el.value)||0) : 0;
+  var bonus = masteryBonus(lvl);
+  var base = d(10);
+  var total = base + bonus;
+  var msg = (p.nome||"Poder") + " — Acerto (" + nomes[tipo] + "): 1d10(" + base + ") + " + bonus + " = " + total;
+  toast(msg);
+  var out = document.getElementById("rollResult");
+  if(out) out.textContent = msg;
+}
+
+function escAttr(t){
+  return String(t||"").replace(/&/g,"&amp;").replace(/"/g,"&quot;").replace(/</g,"&lt;");
+}
+function rolarPoder(id){
+  var p = currentPowers.find(function(x){ return x.id===id; });
+  if(!p || !p.dano) return;
+  var result = rollDiceExpr(p.dano);
+  toast((p.nome||"Poder")+": "+p.dano+" → "+result);
+  // also show in combate roll area if exists
+  var el = document.getElementById("rollResult");
+  if(el) el.textContent = (p.nome||"Poder")+" ("+p.dano+"): "+result;
+}
+function rollDiceExpr(expr){
+  // simple parser: NdS+M or NdS-M
+  expr = String(expr).replace(/\s/g,"").toLowerCase();
+  var m = expr.match(/^(\d*)d(\d+)([+-]\d+)?$/);
+  if(!m) return expr+" (não interpretado)";
+  var n = parseInt(m[1]||"1",10);
+  var sides = parseInt(m[2],10);
+  var mod = m[3] ? parseInt(m[3],10) : 0;
+  var rolls = [], total = 0;
+  for(var i=0;i<n;i++){ var r=d(sides); rolls.push(r); total+=r; }
+  total += mod;
+  return rolls.join("+")+(mod?((mod>=0?"+":"")+mod):"")+" = "+total;
+}
+
+
+function updateSheetHeader(){
+  var n=document.getElementById("nome").value||"Sem nome";
+  document.getElementById("sheetNome").textContent=n;
+  var c=document.getElementById("classe").value;
+  var o=document.getElementById("origem").value;
+  var parts=[];
+  if(c&&CLASSES[c]) parts.push(CLASSES[c].nome);
+  if(o&&ORIGENS[o]) parts.push(ORIGENS[o].nome);
+  document.getElementById("sheetSub").textContent=parts.join(" · ")||"—";
+  updateFotoUI();
+}
+function onNomeChange(){
+  updateSheetHeader();
+  if(!currentFoto) updateFotoUI();
+  autoSave();
+}
+
+function goTab(name){
+  document.querySelectorAll(".tab-pane").forEach(function(p){ p.classList.remove("active"); });
+  var pane=document.getElementById("tab-"+name);
+  if(pane) pane.classList.add("active");
+  closeNav();
+  window.scrollTo(0,0);
+}
+function toggleNav(){
+  var o=document.getElementById("navOverlay");
+  var p=document.getElementById("navPanel");
+  if(p.classList.contains("show")){ closeNav(); }
+  else { o.classList.add("show"); p.classList.add("show"); }
+}
+function closeNav(){
+  document.getElementById("navOverlay").classList.remove("show");
+  document.getElementById("navPanel").classList.remove("show");
+}
+
+
+
+
+var _dlgResolve = null;
+
+function statsFromChar(ch){
+  var vigor = (ch.attrs && ch.attrs.vigor != null) ? parseInt(ch.attrs.vigor)||0 : 0;
+  var feit = (ch.attrs && ch.attrs.feiticeria != null) ? parseInt(ch.attrs.feiticeria)||0 : 0;
+  var agi = (ch.attrs && ch.attrs.agilidade != null) ? parseInt(ch.attrs.agilidade)||0 : 0;
+  var c = ch.classe && CLASSES[ch.classe] ? CLASSES[ch.classe] : null;
+  var pvMax = parseInt(ch.pvMax), manaMax = parseInt(ch.manaMax), def = parseInt(ch.defesa);
+  if(!pvMax || isNaN(pvMax)){
+    pvMax = c ? (c.pvBase + c.pvPorVigor * Math.max(0, vigor)) : (10 + 5 * Math.max(0, vigor));
+  }
+  if(!manaMax || isNaN(manaMax)){
+    manaMax = c ? (c.manaBase + c.manaPorFeit * Math.max(0, feit)) : (5 + 2 * Math.max(0, feit));
+  }
+  if(!def || isNaN(def)){
+    def = c ? (c.defBase + Math.max(0, agi)) : (3 + Math.max(0, agi));
+  }
+  return {
+    pvMax: pvMax, pvAtual: parseInt(ch.pvAtual)||pvMax,
+    manaMax: manaMax, manaAtual: parseInt(ch.manaAtual)||manaMax,
+    defesa: def, agilidade: agi,
+    attrs: ch.attrs ? Object.assign({}, ch.attrs) : {},
+    powers: Array.isArray(ch.powers) ? ch.powers.slice() : [],
+    classe: ch.classe || "", origem: ch.origem || "",
+    foto: ch.foto || "", nome: ch.nome || "Sem nome", jogador: ch.jogador || "",
+    maeCorpo: parseInt(ch.maeCorpo)||0, maeDist: parseInt(ch.maeDist)||0, maeMagia: parseInt(ch.maeMagia)||0
+  };
+}
+function showSintese(s){
+  var cls = s.classe && CLASSES[s.classe] ? CLASSES[s.classe].nome : (s.classe||"—");
+  var ori = s.origem && ORIGENS[s.origem] ? ORIGENS[s.origem].nome : (s.origem||"—");
+  var html = "";
+  if(s.foto) html += '<div style="text-align:center;margin-bottom:12px"><img src="'+s.foto+'" style="width:72px;height:72px;border-radius:14px;object-fit:cover;border:2px solid var(--border)"></div>';
+  html += '<div style="text-align:center;margin-bottom:12px"><div style="font-weight:800;font-size:1.15rem">'+esc(s.nome||"?")+'</div>';
+  if(s.label) html += '<div style="color:var(--accent);font-size:0.75rem;font-weight:700;margin-top:2px">'+esc(s.label)+'</div>';
+  html += '<div class="hint" style="margin-top:4px">'+esc(cls)+' · '+esc(ori)+'</div></div>';
+  html += '<div class="grid-2" style="margin-bottom:10px">';
+  html += '<div class="field"><label>PV</label><div style="font-weight:700">'+(s.pv!=null?s.pv:"—")+'</div></div>';
+  html += '<div class="field"><label>Defesa</label><div style="font-weight:700">'+(s.defesa!=null?s.defesa:"—")+'</div></div>';
+  html += '<div class="field"><label>Mana</label><div style="font-weight:700">'+(s.mana!=null?s.mana:"—")+'</div></div>';
+  html += '<div class="field"><label>Maestrias</label><div style="font-size:0.8rem">C'+(s.maeCorpo||0)+' · D'+(s.maeDist||0)+' · M'+(s.maeMagia||0)+'</div></div></div>';
+  if(s.attrs){
+    html += '<div class="pick-section">Atributos</div><div style="display:flex;flex-wrap:wrap;gap:6px;margin-bottom:12px">';
+    ATTRS.forEach(function(a){
+      var v = s.attrs[a]!=null ? s.attrs[a] : 0;
+      html += '<div style="background:var(--surface2);border:1px solid var(--border);border-radius:8px;padding:6px 10px;font-size:0.8rem"><b>'+esc(ATTR_LABELS[a]||a)+'</b> '+v+' <span style="color:var(--accent)">'+diceLabel(v)+'</span></div>';
+    });
+    html += '</div>';
+  }
+  if(s.powers && s.powers.length){
+    html += '<div class="pick-section">Poderes</div>';
+    s.powers.forEach(function(p){
+      html += '<div style="background:var(--surface2);border:1px solid var(--border);border-radius:10px;padding:10px;margin-bottom:6px">';
+      html += '<div style="font-weight:700">'+esc(p.nome||"Poder")+'</div>';
+      var meta=[]; if(p.nivel) meta.push("Nv "+p.nivel); if(p.dano) meta.push("Dano "+p.dano); if(p.custo) meta.push("Custo "+p.custo); if(p.tipo) meta.push(p.tipo);
+      if(meta.length) html += '<div class="hint">'+esc(meta.join(" · "))+'</div>';
+      if(p.notas) html += '<div class="hint" style="margin-top:4px">'+esc(p.notas)+'</div>';
+      html += '</div>';
+    });
+  }
+  if(s.notas) html += '<div class="pick-section">Notas</div><p class="hint">'+esc(s.notas)+'</p>';
+  showDialog({ title:"Síntese", bodyHtml: html, buttons:[{label:"Fechar", primary:true, value:true}] });
+}
+
+function showDialog(opts){
+  return new Promise(function(resolve){
+    _dlgResolve = resolve;
+    document.getElementById("dlgTitle").textContent = opts.title || "";
+    var msgEl = document.getElementById("dlgMsg");
+    msgEl.textContent = opts.msg || "";
+    msgEl.style.display = opts.msg ? "block" : "none";
+    var body = document.getElementById("dlgBody");
+    body.innerHTML = opts.bodyHtml || "";
+    var actions = document.getElementById("dlgActions");
+    actions.innerHTML = "";
+    (opts.buttons || [{label:"OK", primary:true, value:true}]).forEach(function(b){
+      var btn = document.createElement("button");
+      btn.type = "button";
+      btn.textContent = b.label;
+      btn.className = b.primary ? "btn-primary" : "btn-ghost";
+      if(b.danger) btn.style.color = "#f87171";
+      btn.onclick = function(){ closeDialog(b.value); };
+      actions.appendChild(btn);
+    });
+    document.getElementById("appDialogBg").classList.add("show");
+    var input = body.querySelector("input, textarea");
+    if(input) setTimeout(function(){ try{ input.focus(); if(input.select) input.select(); }catch(e){} }, 80);
+  });
+}
+function closeDialog(val){
+  document.getElementById("appDialogBg").classList.remove("show");
+  if(_dlgResolve){ var r=_dlgResolve; _dlgResolve=null; r(val); }
+}
+function appConfirm(msg, title){
+  return showDialog({
+    title: title || "Confirmar", msg: msg,
+    buttons: [{label:"Cancelar", value:false},{label:"OK", primary:true, value:true}]
+  });
+}
+function appPrompt(msg, def, title){
+  var safe = String(def||"").replace(/&/g,"&amp;").replace(/"/g,"&quot;").replace(/</g,"&lt;");
+  return showDialog({
+    title: title || "Digite", msg: msg,
+    bodyHtml: '<input type="text" id="dlgInput" value="'+safe+'" />',
+    buttons: [{label:"Cancelar", value:null},{label:"OK", primary:true, value:"__IN__"}]
+  }).then(function(v){
+    if(v==="__IN__"){ var el=document.getElementById("dlgInput"); return el?el.value:""; }
+    return v;
+  });
+}
+function agenteToPart(a){
+  return {
+    id:"p_"+Math.random().toString(36).slice(2,8), tipo:"char", charId:a.charId,
+    nome:a.nome, foto:a.foto||"",
+    pv:a.pvAtual!=null?a.pvAtual:a.pvMax, pvMax:a.pvMax||0,
+    mana:a.manaAtual||0, manaMax:a.manaMax||0, defesa:a.defesa||0,
+    agilidade:a.agilidade||0, initBonus:0, iniciativa:0
+  };
+}
+function charToPart(ch, charId){
+  var agi=(ch.attrs&&ch.attrs.agilidade)!=null?parseInt(ch.attrs.agilidade)||0:0;
+  return {
+    id:"p_"+Math.random().toString(36).slice(2,8), tipo:"char", charId:charId,
+    nome:ch.nome||"Sem nome", foto:ch.foto||"",
+    pv:parseInt(ch.pvAtual)||parseInt(ch.pvMax)||0, pvMax:parseInt(ch.pvMax)||0,
+    mana:parseInt(ch.manaAtual)||0, manaMax:parseInt(ch.manaMax)||0,
+    defesa:parseInt(ch.defesa)||0, agilidade:agi, initBonus:0, iniciativa:0
+  };
+}
+
+/* ===== CAMPANHAS / COMBATE ===== */
+const CAMP_KEY = "hdb_campanhas_v1";
+let activeCampId = null;
+let activeCombatId = null;
+
+function loadCamps(){
+  try{
+    var r = localStorage.getItem(CAMP_KEY);
+    if(r){ var p = JSON.parse(r); if(p && p.camps) return p; }
+  }catch(e){}
+  return {camps:{}};
+}
+function saveCamps(s){ try{ localStorage.setItem(CAMP_KEY, JSON.stringify(s)); return true; }catch(err){ console.error(err); toast("Sem espaço para salvar! Exporte um backup e remova fotos."); return false; } }
+
+function hideAllViews(){
+  var vs=document.getElementById("viewSheet");
+  if(activeId && vs && vs.style.display==="block") salvarAtual(true);
+  ["viewList","viewSheet","viewCampaigns","viewCampaign","viewCombat"].forEach(function(id){
+    var el = document.getElementById(id);
+    if(el) el.style.display = "none";
+  });
+}
+function showCampanhas(){
+  hideAllViews();
+  document.getElementById("viewCampaigns").style.display = "block";
+  renderCampanhas();
+}
+function showLista(){
+  hideAllViews();
+  document.getElementById("viewList").style.display = "block";
+  renderList();
+}
+function voltarCampanhas(){
+  activeCampId = null;
+  showCampanhas();
+}
+function voltarDaCombate(){
+  activeCombatId = null;
+  if(activeCampId) abrirCampanha(activeCampId);
+  else showCampanhas();
+}
+
+function emptyCamp(){
+  return {
+    id: "c_"+Date.now(),
+    nome: "Nova Campanha",
+    desc: "",
+    created: Date.now(),
+    agentes: [], // {charId, nome, classe, foto}
+    monstros: [], // {id, nome, pv, pvMax, defesa, mana, notas}
+    combates: [], // {id, nome, status, participantes, round, turnIdx, started}
+    escudo: ""
+  };
+}
+
+function novaCampanha(){
+  appPrompt("Nome da campanha:", "Nova Campanha", "Nova campanha").then(function(nome){
+    if(nome===null) return;
+    var store=loadCamps();
+    var c=emptyCamp();
+    if((nome||"").trim()) c.nome=nome.trim();
+    store.camps[c.id]=c;
+    saveCamps(store);
+    abrirCampanha(c.id);
+    toast("Campanha criada");
+  });
+}
+
+function renderCampanhas(){
+  var store = loadCamps();
+  var ids = Object.keys(store.camps);
+  document.getElementById("campCount").textContent = ids.length + " campanha" + (ids.length!==1?"s":"");
+  var list = document.getElementById("campList");
+  if(!ids.length){
+    list.innerHTML = '<div class="empty-list">Nenhuma campanha.<br/><button type="button" class="btn-new" style="display:inline-block;margin-top:12px" onclick="novaCampanha()">+ Nova Campanha</button></div>';
+    return;
+  }
+  ids.sort(function(a,b){ return (store.camps[b].created||0)-(store.camps[a].created||0); });
+  list.innerHTML = ids.map(function(id){
+    var c = store.camps[id];
+    var nAg = (c.agentes||[]).length;
+    var nCb = (c.combates||[]).length;
+    var date = c.created ? new Date(c.created).toLocaleDateString("pt-BR") : "";
+    return '<div class="camp-card">'+
+      '<div class="camp-title">'+esc(c.nome)+'</div>'+
+      '<div class="camp-meta">'+nAg+' agente(s) · '+nCb+' combate(s)'+(date?' · '+date:'')+'</div>'+
+      '<button type="button" class="btn-access" onclick="abrirCampanha(\''+id+'\')">Acessar</button>'+
+      '</div>';
+  }).join("");
+}
+
+function getCamp(){
+  if(!activeCampId) return null;
+  return loadCamps().camps[activeCampId] || null;
+}
+function patchCamp(fn){
+  var store = loadCamps();
+  var c = store.camps[activeCampId];
+  if(!c) return;
+  fn(c);
+  store.camps[activeCampId] = c;
+  saveCamps(store);
+}
+
+function abrirCampanha(id){
+  activeCampId = id;
+  var c = getCamp();
+  if(!c){ toast("Campanha não encontrada"); return; }
+  hideAllViews();
+  document.getElementById("viewCampaign").style.display = "block";
+  document.getElementById("campNome").textContent = c.nome;
+  document.getElementById("campNomeEdit").value = c.nome;
+  document.getElementById("campDescEdit").value = c.desc || "";
+  document.getElementById("campEscudo").value = c.escudo || "";
+  campTab("agentes");
+  renderCampAgentes();
+  renderCampCombates();
+  renderCampMonstros();
+}
+
+function campTab(name){
+  ["agentes","combates","escudo","config"].forEach(function(t){
+    var pane = document.getElementById("ctab-"+t);
+    if(pane) pane.style.display = t===name ? "block" : "none";
+  });
+  document.querySelectorAll(".camp-tabs button").forEach(function(b){
+    b.classList.toggle("active", b.getAttribute("data-ctab")===name);
+  });
+}
+
+function renderCampAgentes(){
+  var c = getCamp(); if(!c) return;
+  var el = document.getElementById("campAgentes");
+  var ags = c.agentes || [];
+  if(!ags.length){
+    el.innerHTML = '<p class="hint" style="text-align:center;padding:16px">Nenhum agente. Adicione personagens da sua lista.</p>';
+    return;
+  }
+  el.innerHTML = ags.map(function(a, i){
+    var av = a.foto ? '<img src="'+a.foto+'" style="width:48px;height:48px;border-radius:10px;object-fit:cover">' :
+      '<div class="char-avatar" style="width:48px;height:48px">'+esc((a.nome||"?").charAt(0))+'</div>';
+    return '<div class="char-card">'+av+
+      '<div class="char-info"><div class="name">'+esc(a.nome||"Sem nome")+'</div>'+
+      '<div class="meta">'+esc(a.classe||"—")+(a.jogador?' · '+esc(a.jogador):'')+'</div></div>'+
+      '<button type="button" class="btn-ghost" style="padding:6px 10px;font-size:0.75rem;color:#f87171" onclick="removerAgente('+i+')">Remover</button></div>';
+  }).join("");
+}
+
+function abrirAddAgente(){
+  var chars = loadStore().chars || {};
+  var ids = Object.keys(chars);
+  var c = getCamp();
+  var already = {};
+  (c.agentes||[]).forEach(function(a){ if(a.charId) already[a.charId]=true; });
+  var html = '<h3>Adicionar personagem</h3>';
+  if(!ids.length){
+    html += '<p class="hint">Você ainda não tem fichas. Crie personagens primeiro.</p>';
+  } else {
+    ids.forEach(function(id){
+      var ch = chars[id];
+      var nome = ch.nome || "Sem nome";
+      var disabled = already[id] ? " (já na campanha)" : "";
+      if(already[id]){
+        html += '<div class="agent-pick" style="opacity:0.5"><div class="info"><b>'+esc(nome)+'</b>'+disabled+'</div></div>';
+      } else {
+        html += '<div class="agent-pick"><div class="info"><b>'+esc(nome)+'</b><div class="hint">'+(ch.classe||"")+'</div></div>'+
+          '<button type="button" class="btn-access" onclick="addAgente(\''+id+'\')">Add</button></div>';
+      }
+    });
+  }
+  html += '<button type="button" class="nav-close" onclick="closeCampModal()" style="margin-top:12px;width:100%">Fechar</button>';
+  openCampModal(html);
+}
+
+function addAgente(charId){
+  var ch = loadStore().chars[charId];
+  if(!ch) return;
+  var classe = ch.classe && CLASSES[ch.classe] ? CLASSES[ch.classe].nome : (ch.classe||"");
+  patchCamp(function(c){
+    c.agentes = c.agentes || [];
+    c.agentes.push({
+      charId: charId,
+      nome: ch.nome || "Sem nome",
+      jogador: ch.jogador || "",
+      classe: classe,
+      foto: ch.foto || "",
+      // snapshot for initiative
+      agilidade: (ch.attrs && ch.attrs.agilidade) != null ? parseInt(ch.attrs.agilidade)||0 : 0,
+      pvMax: parseInt(ch.pvMax)||0,
+      pvAtual: parseInt(ch.pvAtual)||parseInt(ch.pvMax)||0,
+      manaMax: parseInt(ch.manaMax)||0,
+      manaAtual: parseInt(ch.manaAtual)||0,
+      defesa: parseInt(ch.defesa)||0
+    });
+  });
+  closeCampModal();
+  renderCampAgentes();
+  toast("Agente adicionado");
+}
+function removerAgente(idx){
+  appConfirm("Remover este agente da campanha?", "Remover").then(function(ok){
+    if(!ok) return;
+    patchCamp(function(c){ c.agentes.splice(idx,1); });
+    renderCampAgentes();
+  });
+}
+
+function salvarEscudo(){
+  var v = document.getElementById("campEscudo").value;
+  patchCamp(function(c){ c.escudo = v; });
+}
+function salvarCampMeta(){
+  patchCamp(function(c){
+    c.nome = document.getElementById("campNomeEdit").value || c.nome;
+    c.desc = document.getElementById("campDescEdit").value || "";
+  });
+  var c = getCamp();
+  if(c) document.getElementById("campNome").textContent = c.nome;
+  toast("Salvo");
+}
+function deletarCampanha(){
+  appConfirm("Excluir esta campanha permanentemente?", "Excluir").then(function(ok){
+    if(!ok) return;
+    var store = loadCamps();
+    delete store.camps[activeCampId];
+    saveCamps(store);
+    activeCampId = null;
+    showCampanhas();
+    toast("Campanha excluída");
+  });
+}
+
+function exportarCampanha(){
+  var c = getCamp(); if(!c) return;
+  var code = btoa(unescape(encodeURIComponent(JSON.stringify(c))));
+  var ta = document.createElement("textarea");
+  ta.value = code;
+  document.body.appendChild(ta); ta.select();
+  try{ document.execCommand("copy"); toast("Código copiado!"); }
+  catch(e){ prompt("Copie o código:", code); }
+  document.body.removeChild(ta);
+}
+function limparCamp(o){
+  var NUM=/^(pv|pvMax|pvAtual|mana|manaMax|manaAtual|defesa|agilidade|initBonus|iniciativa|round|turnIdx)$/;
+  if(Array.isArray(o)) return o.map(limparCamp);
+  if(o && typeof o==="object"){
+    var r={};
+    Object.keys(o).forEach(function(k){
+      if(k==="__proto__") return;
+      var v=o[k];
+      if(k==="foto") r[k]=okFoto(v);
+      else if(k==="id"||k==="charId") r[k]=String(v).replace(/[^\w-]/g,"");
+      else if(NUM.test(k)) r[k]=parseInt(v,10)||0;
+      else r[k]=limparCamp(v);
+    });
+    return r;
+  }
+  return typeof o==="string" ? o.replace(/[<>]/g,"") : o;
+}
+function importarCampanha(){
+  var code = prompt("Cole o código da campanha:");
+  if(!code) return;
+  try{
+    var c = limparCamp(JSON.parse(decodeURIComponent(escape(atob(code.trim())))));
+    if(!c || typeof c!=="object" || Array.isArray(c)) throw new Error("formato");
+    c.nome = c.nome ? String(c.nome) : "Campanha importada";
+    ["agentes","monstros","combates"].forEach(function(k){ if(!Array.isArray(c[k])) c[k]=[]; });
+    c.id = "c_"+Date.now();
+    c.created = Date.now();
+    var store = loadCamps();
+    store.camps[c.id] = c;
+    saveCamps(store);
+    abrirCampanha(c.id);
+    toast("Campanha importada");
+  }catch(e){ alert("Código inválido"); }
+}
+
+/* Monstros */
+function abrirNovoMonstro(){
+  var chars = loadStore().chars || {};
+  var ids = Object.keys(chars);
+  var html = '<h3>Personagem / Vilão</h3>';
+  html += '<p class="hint" style="margin-bottom:10px">Use fichas suas como NPC/vilão nos combates.</p>';
+  html += '<div class="pick-section">Usar ficha existente</div><div class="pick-list">';
+  if(!ids.length) html += '<p class="hint">Nenhuma ficha criada.</p>';
+  ids.forEach(function(id){
+    var ch = chars[id];
+    var st = statsFromChar(ch);
+    var av = st.foto ? '<img src="'+st.foto+'">' : esc(st.nome.charAt(0).toUpperCase());
+    var cls = ch.classe && CLASSES[ch.classe] ? CLASSES[ch.classe].nome : (ch.classe||"");
+    html += '<div class="pick-item" data-as-mon="'+id+'"><div class="av">'+av+'</div><div class="txt"><div class="n">'+esc(st.nome)+'</div><div class="s">'+esc(cls)+' · PV '+st.pvMax+' · Def '+st.defesa+'</div></div></div>';
+  });
+  html += '</div><div class="pick-section">Ou criar do zero</div>';
+  html += '<button type="button" class="btn-add-power" id="btnMonManual">+ Criar manualmente</button>';
+  html += '<button type="button" class="nav-close" onclick="closeCampModal()" style="margin-top:10px;width:100%">Fechar</button>';
+  openCampModal(html);
+  var panel = document.getElementById("campModalPanel");
+  panel.querySelectorAll("[data-as-mon]").forEach(function(el){
+    el.addEventListener("click", function(){ monstroFromChar(el.getAttribute("data-as-mon")); });
+  });
+  var bm = document.getElementById("btnMonManual");
+  if(bm) bm.addEventListener("click", abrirMonstroManual);
+}
+function monstroFromChar(charId){
+  var ch = loadStore().chars[charId];
+  if(!ch) return;
+  var st = statsFromChar(ch);
+  var m = {
+    id: "mon_"+Date.now(), nome: st.nome, pv: st.pvMax, pvMax: st.pvMax,
+    defesa: st.defesa, mana: st.manaMax, initBonus: st.agilidade,
+    notas: (ch.classe && CLASSES[ch.classe] ? CLASSES[ch.classe].nome : "") + (st.jogador ? " · "+st.jogador : ""),
+    foto: st.foto, charId: charId, tipoLabel: "vilao",
+    attrs: st.attrs, powers: st.powers, classe: st.classe, origem: st.origem,
+    maeCorpo: st.maeCorpo, maeDist: st.maeDist, maeMagia: st.maeMagia
+  };
+  patchCamp(function(c){ c.monstros = c.monstros||[]; c.monstros.push(m); });
+  closeCampModal();
+  renderCampMonstros();
+  toast(m.nome+" salvo como Personagem/Vilão");
+}
+function abrirMonstroManual(){
+  closeCampModal();
+  openCampModal(
+    '<h3>Criar Personagem/Vilão</h3>'+
+    '<div class="field"><label>Nome</label><input id="mNome" value="Vilão" /></div>'+
+    '<div class="grid-2"><div class="field"><label>PV</label><input id="mPv" type="number" value="20" /></div>'+
+    '<div class="field"><label>Defesa</label><input id="mDef" type="number" value="5" /></div></div>'+
+    '<div class="grid-2"><div class="field"><label>Mana</label><input id="mMana" type="number" value="0" /></div>'+
+    '<div class="field"><label>Bônus iniciativa</label><input id="mInit" type="number" value="0" /></div></div>'+
+    '<div class="field"><label>Notas</label><textarea id="mNotas"></textarea></div>'+
+    '<div style="display:flex;gap:8px;margin-top:12px">'+
+    '<button type="button" class="btn-ghost" style="flex:1;padding:12px;border-radius:10px" onclick="closeCampModal()">Cancelar</button>'+
+    '<button type="button" class="btn-primary" style="flex:1;padding:12px;border-radius:10px" onclick="salvarMonstro()">Salvar</button></div>'
+  );
+}
+function salvarMonstro(){
+  var m = {
+    id: "mon_"+Date.now(),
+    nome: document.getElementById("mNome").value || "Vilão",
+    pv: parseInt(document.getElementById("mPv").value)||0,
+    pvMax: parseInt(document.getElementById("mPv").value)||0,
+    defesa: parseInt(document.getElementById("mDef").value)||0,
+    mana: parseInt(document.getElementById("mMana").value)||0,
+    initBonus: parseInt(document.getElementById("mInit").value)||0,
+    notas: document.getElementById("mNotas").value || "",
+    foto: "", tipoLabel: "vilao"
+  };
+  patchCamp(function(c){ c.monstros = c.monstros||[]; c.monstros.push(m); });
+  closeCampModal();
+  renderCampMonstros();
+  toast("Personagem/Vilão salvo");
+}
+
+function renderCampMonstros(){
+  var c = getCamp(); if(!c) return;
+  var el = document.getElementById("campMonstros");
+  var ms = c.monstros||[];
+  if(!ms.length){ el.innerHTML = '<p class="hint">Nenhum personagem/vilão salvo.</p>'; return; }
+  el.innerHTML = ms.map(function(m,i){
+    var av = m.foto ? '<img src="'+m.foto+'" style="width:40px;height:40px;border-radius:8px;object-fit:cover;float:left;margin-right:10px">' : '';
+    return '<div class="combat-card" style="cursor:pointer" onclick="verSinteseMonstro('+i+')">'+av+
+      '<div class="ctitle">'+esc(m.nome)+' <span style="font-size:0.7rem;color:var(--accent);font-weight:600">Vilão</span></div>'+
+      '<div class="cmeta">PV '+m.pvMax+' · Def '+m.defesa+(m.notas?' · '+esc(m.notas):'')+'</div>'+
+      '<div class="cactions" style="clear:both" onclick="event.stopPropagation()">'+
+      '<button type="button" class="btn-ghost" style="padding:6px 10px;font-size:0.75rem;color:#f87171" onclick="removerMonstro('+i+')">Excluir</button></div></div>';
+  }).join("");
+}
+function removerMonstro(i){
+  appConfirm("Excluir este personagem/vilão?", "Excluir").then(function(ok){
+    if(!ok) return;
+    patchCamp(function(c){ c.monstros.splice(i,1); });
+    renderCampMonstros();
+  });
+}
+function verSinteseMonstro(i){
+  var c = getCamp(); if(!c) return;
+  var m = (c.monstros||[])[i];
+  if(!m) return;
+  if(m.charId && loadStore().chars[m.charId]){
+    var st = statsFromChar(loadStore().chars[m.charId]);
+    showSintese({
+      nome: st.nome, foto: st.foto||m.foto, classe: st.classe, origem: st.origem,
+      pv: m.pvMax||st.pvMax, defesa: m.defesa||st.defesa, mana: m.mana||st.manaMax,
+      attrs: st.attrs, powers: st.powers,
+      maeCorpo: st.maeCorpo, maeDist: st.maeDist, maeMagia: st.maeMagia,
+      notas: m.notas, label: "Vilão"
+    });
+    return;
+  }
+  showSintese({
+    nome: m.nome, foto: m.foto, classe: m.classe, origem: m.origem,
+    pv: m.pvMax, defesa: m.defesa, mana: m.mana,
+    attrs: m.attrs, powers: m.powers,
+    maeCorpo: m.maeCorpo, maeDist: m.maeDist, maeMagia: m.maeMagia,
+    notas: m.notas, label: "Vilão"
+  });
+}
+
+function novoCombate(){
+  appPrompt("Nome do combate:", "Novo combate", "Criar combate").then(function(nome){
+    if(nome===null) return;
+    var combatName = (nome||"").trim() || "Novo combate";
+    var c = getCamp();
+    var html = '<h3>Quem entra no combate?</h3>';
+    html += '<p class="hint" style="margin-bottom:10px">Marque agentes e vilões. Depois você pode adicionar mais.</p>';
+    html += '<div class="pick-list">';
+    html += '<div class="pick-section">Agentes (jogadores)</div>';
+    if(!(c.agentes||[]).length) html += '<p class="hint">Nenhum agente na campanha.</p>';
+    (c.agentes||[]).forEach(function(a,i){
+      var av = a.foto ? '<img src="'+a.foto+'">' : esc((a.nome||"?").charAt(0));
+      html += '<label class="pick-item" style="cursor:pointer"><input type="checkbox" class="cb-agente" value="'+i+'" checked style="width:18px;height:18px;accent-color:var(--accent)" />'+
+        '<div class="av">'+av+'</div><div class="txt"><div class="n">'+esc(a.nome)+'</div><div class="s">Agente · PV '+(a.pvMax||0)+'</div></div></label>';
+    });
+    html += '<div class="pick-section">Personagens / Vilões (mestre)</div>';
+    if(!(c.monstros||[]).length) html += '<p class="hint">Nenhum vilão salvo. Crie em Escudo → Novo personagem/vilão.</p>';
+    (c.monstros||[]).forEach(function(m,i){
+      var av = m.foto ? '<img src="'+m.foto+'">' : '⚔';
+      html += '<label class="pick-item" style="cursor:pointer"><input type="checkbox" class="cb-vilao" value="'+i+'" style="width:18px;height:18px;accent-color:var(--accent)" />'+
+        '<div class="av mon">'+av+'</div><div class="txt"><div class="n">'+esc(m.nome)+'</div><div class="s">Vilão · PV '+m.pvMax+' · Def '+m.defesa+'</div></div></label>';
+    });
+    html += '</div>';
+    html += '<div style="display:flex;gap:8px;margin-top:8px">'+
+      '<button type="button" class="btn-ghost" style="flex:1;padding:12px;border-radius:10px" onclick="closeCampModal()">Cancelar</button>'+
+      '<button type="button" class="btn-primary" style="flex:1;padding:12px;border-radius:10px" id="btnCriarCb">Criar combate</button></div>';
+    openCampModal(html);
+    document.getElementById("btnCriarCb").onclick = function(){
+      var combat = {
+        id: "cb_"+Date.now(),
+        nome: combatName,
+        status: "preparado",
+        participantes: [],
+        round: 1,
+        turnIdx: 0
+      };
+      document.querySelectorAll(".cb-agente:checked").forEach(function(cb){
+        var a = c.agentes[parseInt(cb.value)];
+        if(a) combat.participantes.push(agenteToPart(a));
+      });
+      document.querySelectorAll(".cb-vilao:checked").forEach(function(cb){
+        var m = c.monstros[parseInt(cb.value)];
+        if(m){
+          var p = {
+            id: "p_"+Math.random().toString(36).slice(2,8),
+            tipo: "monster",
+            nome: m.nome,
+            foto: m.foto||"",
+            pv: m.pvMax, pvMax: m.pvMax,
+            mana: m.mana||0, manaMax: m.mana||0,
+            defesa: m.defesa||0,
+            agilidade: 0, initBonus: m.initBonus||0,
+            iniciativa: 0,
+            charId: m.charId,
+            attrs: m.attrs, powers: m.powers,
+            classe: m.classe, origem: m.origem,
+            maeCorpo: m.maeCorpo, maeDist: m.maeDist, maeMagia: m.maeMagia,
+            notas: m.notas,
+            label: "Vilão"
+          };
+          combat.participantes.push(p);
+        }
+      });
+      patchCamp(function(camp){ camp.combates = camp.combates||[]; camp.combates.push(combat); });
+      closeCampModal();
+      renderCampCombates();
+      toast("Combate preparado · "+combat.participantes.length+" combatente(s)");
+    };
+  });
+}
+
+function renderCampCombates(){
+  var c = getCamp(); if(!c) return;
+  var el = document.getElementById("campCombates");
+  var cbs = c.combates||[];
+  if(!cbs.length){
+    el.innerHTML = '<p class="hint" style="text-align:center;padding:16px">Nenhum combate. Crie um para preparar a luta.</p>';
+    return;
+  }
+  el.innerHTML = cbs.map(function(cb){
+    var st = cb.status === "ativo" ? "Em andamento" : cb.status === "encerrado" ? "Encerrado" : "Preparado";
+    var n = (cb.participantes||[]).length;
+    var btns = '';
+    if(cb.status === "preparado"){
+      btns = '<button type="button" class="btn-access" onclick="iniciarCombate(\''+cb.id+'\')">Iniciar</button>'+
+        '<button type="button" class="btn-ghost" style="padding:8px 12px;font-size:0.8rem" onclick="editarCombate(\''+cb.id+'\')">Editar</button>';
+    } else if(cb.status === "ativo"){
+      btns = '<button type="button" class="btn-access" onclick="abrirCombate(\''+cb.id+'\')">Continuar</button>';
+    } else {
+      btns = '<button type="button" class="btn-ghost" style="padding:8px 12px;font-size:0.8rem" onclick="abrirCombate(\''+cb.id+'\')">Ver</button>';
+    }
+    btns += '<button type="button" class="btn-ghost" style="padding:8px 12px;font-size:0.8rem;color:#f87171" onclick="removerCombate(\''+cb.id+'\')">Remover</button>';
+    return '<div class="combat-card"><div class="ctitle">'+esc(cb.nome)+'</div>'+
+      '<div class="cmeta">'+st+' · '+n+' combatente(s)</div>'+
+      '<div class="cactions">'+btns+'</div></div>';
+  }).join("");
+}
+
+function removerCombate(id){
+  appConfirm("Remover este combate? Esta ação não pode ser desfeita.", "Remover combate").then(function(ok){
+    if(!ok) return;
+    patchCamp(function(c){ c.combates = (c.combates||[]).filter(function(x){ return x.id!==id; }); });
+    renderCampCombates();
+    toast("Combate removido");
+  });
+}
+
+function iniciarCombate(id){
+  // Roll initiatives for all, set status active
+  patchCamp(function(c){
+    var cb = (c.combates||[]).find(function(x){ return x.id===id; });
+    if(!cb) return;
+    cb.participantes.forEach(function(p){
+      p.iniciativa = rollIniciativa(p);
+    });
+    cb.participantes.sort(function(a,b){ return b.iniciativa - a.iniciativa; });
+    cb.status = "ativo";
+    cb.round = 1;
+    cb.turnIdx = 0;
+  });
+  abrirCombate(id);
+  toast("Combate iniciado — iniciativas roladas!");
+}
+
+function rollIniciativa(p){
+  // 1d10 + bônus (agilidade level or initBonus)
+  var base = d(10);
+  var bonus = 0;
+  if(p.tipo === "monster") bonus = p.initBonus||0;
+  else {
+    // use agilidade level as flat bonus + training dice average feel: just flat level for simplicity
+    // better: 1d10 + training dice from agilidade
+    var tr = rollTrainingDice(p.agilidade||0);
+    bonus = tr.total;
+  }
+  return base + bonus + (p.initBonus||0);
+}
+
+function abrirCombate(id){
+  activeCombatId = id;
+  hideAllViews();
+  document.getElementById("viewCombat").style.display = "block";
+  renderCombateAtivo();
+}
+
+function getCombat(){
+  var c = getCamp(); if(!c) return null;
+  return (c.combates||[]).find(function(x){ return x.id===activeCombatId; });
+}
+function patchCombat(fn){
+  patchCamp(function(c){
+    var cb = (c.combates||[]).find(function(x){ return x.id===activeCombatId; });
+    if(cb) fn(cb);
+  });
+}
+
+function renderCombateAtivo(){
+  var cb = getCombat(); if(!cb) return;
+  document.getElementById("combatTitle").textContent = cb.nome;
+  document.getElementById("combatRound").textContent = cb.round || 1;
+  var list = document.getElementById("initList");
+  var parts = (cb.participantes||[]).slice().sort(function(a,b){ return b.iniciativa - a.iniciativa; });
+  var turnIdx = cb.turnIdx || 0;
+  if(turnIdx >= parts.length) turnIdx = 0;
+  list.innerHTML = parts.map(function(p, i){
+    var active = i === turnIdx ? " active" : "";
+    var av = p.foto ? '<img src="'+p.foto+'">' : (p.nome||"?").charAt(0).toUpperCase();
+    var avCls = (p.tipo==="monster" || p.label==="Vilão") ? "init-av monster" : "init-av";
+    var hpCls = (p.pvMax>0 && p.pv/p.pvMax <= 0.3) ? " low" : "";
+    var tag = (p.tipo==="monster" || p.label==="Vilão") ? ' <span style="color:#f87171;font-size:0.7rem">Vilão</span>' : '';
+    return '<div class="init-row'+active+'" data-pid="'+p.id+'">'+
+      '<div class="'+avCls+'">'+av+'</div>'+
+      '<div class="init-info" style="cursor:pointer">'+
+        '<div class="n">'+esc(p.nome)+tag+'</div>'+
+        '<div class="hp'+hpCls+'">PV '+p.pv+'/'+p.pvMax+
+          (p.manaMax?' · Mana '+p.mana+'/'+p.manaMax:'')+
+          (p.defesa?' · Def '+p.defesa:'')+
+        '</div></div>'+
+      '<div class="init-val">'+p.iniciativa+'</div>'+
+      '<button type="button" class="btn-ghost" style="padding:6px 8px;font-size:0.75rem" data-edit="'+p.id+'">✎</button>'+
+      '</div>';
+  }).join("");
+  list.querySelectorAll(".init-row").forEach(function(row){
+    var pid = row.getAttribute("data-pid");
+    row.querySelector(".init-info").addEventListener("click", function(){ verSinteseCombatente(pid); });
+    var ed = row.querySelector("[data-edit]");
+    if(ed) ed.addEventListener("click", function(e){ e.stopPropagation(); editarCombatente(pid); });
+  });
+}
+function verSinteseCombatente(pid){
+  var cb = getCombat(); if(!cb) return;
+  var p = (cb.participantes||[]).find(function(x){ return x.id===pid; });
+  if(!p) return;
+  // try live sheet if charId
+  if(p.charId && loadStore().chars[p.charId]){
+    var ch = loadStore().chars[p.charId];
+    var st = statsFromChar(ch);
+    showSintese({
+      nome: st.nome, foto: st.foto, classe: st.classe, origem: st.origem,
+      pv: p.pvMax || st.pvMax, defesa: p.defesa || st.defesa, mana: p.manaMax || st.manaMax,
+      attrs: st.attrs, powers: st.powers,
+      maeCorpo: st.maeCorpo, maeDist: st.maeDist, maeMagia: st.maeMagia,
+      notas: p.notas, label: p.label || (p.tipo==="monster"?"Vilão":"Agente")
+    });
+    return;
+  }
+  showSintese({
+    nome: p.nome, foto: p.foto, classe: p.classe, origem: p.origem,
+    pv: p.pvMax, defesa: p.defesa, mana: p.manaMax,
+    attrs: p.attrs, powers: p.powers,
+    maeCorpo: p.maeCorpo, maeDist: p.maeDist, maeMagia: p.maeMagia,
+    notas: p.notas, label: p.label || (p.tipo==="monster"?"Vilão":"Agente")
+  });
+}
+
+function proximoTurno(){
+  patchCombat(function(cb){
+    var n = (cb.participantes||[]).length;
+    if(!n) return;
+    cb.turnIdx = (cb.turnIdx||0) + 1;
+    if(cb.turnIdx >= n){
+      cb.turnIdx = 0;
+      cb.round = (cb.round||1) + 1;
+    }
+  });
+  renderCombateAtivo();
+}
+function turnoAnterior(){
+  patchCombat(function(cb){
+    var n = (cb.participantes||[]).length;
+    if(!n) return;
+    cb.turnIdx = (cb.turnIdx||0) - 1;
+    if(cb.turnIdx < 0){
+      cb.round = Math.max(1, (cb.round||1) - 1);
+      cb.turnIdx = n - 1;
+    }
+  });
+  renderCombateAtivo();
+}
+function rolarIniciativas(){
+  appConfirm("Re-rolar iniciativas de todos?", "Iniciativa").then(function(ok){ if(!ok) return;
+  patchCombat(function(cb){
+    (cb.participantes||[]).forEach(function(p){ p.iniciativa = rollIniciativa(p); });
+    cb.participantes.sort(function(a,b){ return b.iniciativa - a.iniciativa; });
+    cb.turnIdx = 0;
+  });
+  renderCombateAtivo();
+  toast("Iniciativas re-roladas");
+});
+}
+function encerrarCombate(){
+  appConfirm("Encerrar este combate?", "Encerrar").then(function(ok){ if(!ok) return;
+  patchCombat(function(cb){ cb.status = "encerrado"; });
+  activeCombatId = null;
+  if(activeCampId) abrirCampanha(activeCampId);
+  toast("Combate encerrado");
+  });
+}
+
+function abrirAddCombatente(){
+  var c = getCamp();
+  var chars = loadStore().chars || {};
+  var html = '<h3>Adicionar ao combate</h3><div class="pick-list">';
+  html += '<div class="pick-section">Meus personagens (fichas)</div>';
+  var charIds = Object.keys(chars);
+  if(!charIds.length) html += '<p class="hint">Nenhuma ficha criada ainda.</p>';
+  charIds.forEach(function(id){
+    var ch = chars[id];
+    var nome = ch.nome || "Sem nome";
+    var av = ch.foto ? '<img src="'+ch.foto+'">' : esc(nome.charAt(0).toUpperCase());
+    var cls = ch.classe && CLASSES[ch.classe] ? CLASSES[ch.classe].nome : (ch.classe||"");
+    html += '<div class="pick-item" data-char="'+id+'"><div class="av">'+av+'</div><div class="txt"><div class="n">'+esc(nome)+'</div><div class="s">'+esc(cls)+' · PV '+(ch.pvMax||0)+'</div></div></div>';
+  });
+  html += '<div class="pick-section">Agentes da campanha</div>';
+  if(!(c.agentes||[]).length) html += '<p class="hint">Nenhum agente na campanha.</p>';
+  (c.agentes||[]).forEach(function(a,i){
+    var av = a.foto ? '<img src="'+a.foto+'">' : esc((a.nome||"?").charAt(0).toUpperCase());
+    html += '<div class="pick-item" data-agente="'+i+'"><div class="av">'+av+'</div><div class="txt"><div class="n">'+esc(a.nome)+'</div><div class="s">'+esc(a.classe||"")+' · PV '+(a.pvMax||0)+'</div></div></div>';
+  });
+  html += '<div class="pick-section">Personagens / Vilões</div>';
+  if(!(c.monstros||[]).length) html += '<p class="hint">Nenhum monstro salvo no Escudo.</p>';
+  (c.monstros||[]).forEach(function(m){
+    html += '<div class="pick-item" data-mon="'+m.id+'"><div class="av mon">👾</div><div class="txt"><div class="n">'+esc(m.nome)+'</div><div class="s">PV '+m.pvMax+' · Def '+m.defesa+'</div></div></div>';
+  });
+  html += '</div>';
+  html += '<button type="button" class="btn-add-power" id="btnMonRapido">+ Criar monstro rápido</button>';
+  html += '<button type="button" class="nav-close" onclick="closeCampModal()" style="margin-top:10px;width:100%">Fechar</button>';
+  openCampModal(html);
+  var panel = document.getElementById("campModalPanel");
+  panel.querySelectorAll("[data-char]").forEach(function(el){
+    el.addEventListener("click", function(){ addCharAoCombate(el.getAttribute("data-char")); });
+  });
+  panel.querySelectorAll("[data-agente]").forEach(function(el){
+    el.addEventListener("click", function(){ addAgenteAoCombate(parseInt(el.getAttribute("data-agente"))); });
+  });
+  panel.querySelectorAll("[data-mon]").forEach(function(el){
+    el.addEventListener("click", function(){ addMonstroAoCombate(el.getAttribute("data-mon")); });
+  });
+  var br = document.getElementById("btnMonRapido");
+  if(br) br.addEventListener("click", abrirNovoMonstroCombate);
+}
+function addCharAoCombate(charId){
+  var ch = loadStore().chars[charId];
+  if(!ch) return;
+  patchCombat(function(cb){
+    var p = charToPart(ch, charId);
+    p.iniciativa = rollIniciativa(p);
+    cb.participantes.push(p);
+    cb.participantes.sort(function(a,b){ return b.iniciativa - a.iniciativa; });
+  });
+  closeCampModal();
+  renderCombateAtivo();
+  toast((ch.nome||"Personagem")+" entrou no combate");
+}
+function addMonstroAoCombate(mid){
+  var c = getCamp();
+  var m = (c.monstros||[]).find(function(x){ return x.id===mid; });
+  if(!m) return;
+  patchCombat(function(cb){
+    var p = {
+      id: "p_"+Math.random().toString(36).slice(2,8),
+      tipo: "monster", nome: m.nome, foto: m.foto||"",
+      pv: m.pvMax, pvMax: m.pvMax, mana: m.mana||0, manaMax: m.mana||0,
+      defesa: m.defesa||0, agilidade: 0, initBonus: m.initBonus||0,
+      iniciativa: 0
+    };
+    p.iniciativa = rollIniciativa(p);
+    cb.participantes.push(p);
+    cb.participantes.sort(function(a,b){ return b.iniciativa - a.iniciativa; });
+  });
+  closeCampModal();
+  renderCombateAtivo();
+  toast(m.nome+" entrou no combate");
+}
+function addAgenteAoCombate(idx){
+  var a = getCamp().agentes[idx];
+  if(!a) return;
+  patchCombat(function(cb){
+    var p = {
+      id: "p_"+Math.random().toString(36).slice(2,8),
+      tipo: "char", charId: a.charId, nome: a.nome, foto: a.foto||"",
+      pv: a.pvAtual!=null?a.pvAtual:a.pvMax, pvMax: a.pvMax||0,
+      mana: a.manaAtual||0, manaMax: a.manaMax||0,
+      defesa: a.defesa||0, agilidade: a.agilidade||0, initBonus: 0, iniciativa: 0
+    };
+    p.iniciativa = rollIniciativa(p);
+    cb.participantes.push(p);
+    cb.participantes.sort(function(a,b){ return b.iniciativa - a.iniciativa; });
+  });
+  closeCampModal();
+  renderCombateAtivo();
+}
+function abrirNovoMonstroCombate(){
+  closeCampModal();
+  showDialog({
+    title:"Monstro rápido",
+    bodyHtml:'<div class="field"><label>Nome</label><input id="qmNome" value="Monstro" /></div>'+
+      '<div class="grid-2"><div class="field"><label>PV</label><input id="qmPv" type="number" value="20" /></div>'+
+      '<div class="field"><label>Defesa</label><input id="qmDef" type="number" value="5" /></div></div>',
+    buttons:[{label:"Cancelar",value:false},{label:"Adicionar",primary:true,value:true}]
+  }).then(function(ok){
+    if(!ok) return;
+    var nome=document.getElementById("qmNome").value||"Monstro";
+    var pv=parseInt(document.getElementById("qmPv").value)||20;
+    var def=parseInt(document.getElementById("qmDef").value)||5;
+    patchCombat(function(cb){
+      var p={id:"p_"+Math.random().toString(36).slice(2,8),tipo:"monster",nome:nome,foto:"",
+        pv:pv,pvMax:pv,mana:0,manaMax:0,defesa:def,agilidade:0,initBonus:0,iniciativa:0};
+      p.iniciativa=rollIniciativa(p);
+      cb.participantes.push(p);
+      cb.participantes.sort(function(a,b){return b.iniciativa-a.iniciativa;});
+    });
+    renderCombateAtivo();
+    toast(nome+" adicionado");
+  });
+}
+
+function editarCombatente(pid){
+  var cb = getCombat(); if(!cb) return;
+  var p = (cb.participantes||[]).find(function(x){ return x.id===pid; });
+  if(!p) return;
+  var html = '<h3>'+esc(p.nome)+'</h3>'+
+    '<div class="grid-2"><div class="field"><label>PV atual</label><input type="number" id="ePv" value="'+p.pv+'" /></div>'+
+    '<div class="field"><label>PV máx</label><input type="number" id="ePvMax" value="'+p.pvMax+'" /></div></div>'+
+    '<div class="grid-2"><div class="field"><label>Mana</label><input type="number" id="eMana" value="'+(p.mana||0)+'" /></div>'+
+    '<div class="field"><label>Iniciativa</label><input type="number" id="eInit" value="'+p.iniciativa+'" /></div></div>'+
+    '<div class="field"><label>Defesa</label><input type="number" id="eDef" value="'+(p.defesa||0)+'" /></div>'+
+    '<div style="display:flex;gap:8px;margin-top:12px">'+
+    '<button type="button" class="btn-ghost" style="flex:1;padding:12px;border-radius:10px;color:#f87171" onclick="removerCombatente(\''+pid+'\')">Remover</button>'+
+    '<button type="button" class="btn-primary" style="flex:1;padding:12px;border-radius:10px" onclick="salvarCombatente(\''+pid+'\')">Salvar</button></div>';
+  openCampModal(html);
+}
+function salvarCombatente(pid){
+  patchCombat(function(cb){
+    var p = (cb.participantes||[]).find(function(x){ return x.id===pid; });
+    if(!p) return;
+    p.pv = parseInt(document.getElementById("ePv").value)||0;
+    p.pvMax = parseInt(document.getElementById("ePvMax").value)||0;
+    p.mana = parseInt(document.getElementById("eMana").value)||0;
+    p.iniciativa = parseInt(document.getElementById("eInit").value)||0;
+    p.defesa = parseInt(document.getElementById("eDef").value)||0;
+    cb.participantes.sort(function(a,b){ return b.iniciativa - a.iniciativa; });
+  });
+  closeCampModal();
+  renderCombateAtivo();
+}
+function removerCombatente(pid){
+  patchCombat(function(cb){
+    cb.participantes = (cb.participantes||[]).filter(function(x){ return x.id!==pid; });
+  });
+  closeCampModal();
+  renderCombateAtivo();
+}
+
+function editarCombate(id){
+  // open combat in prepared mode to add people before start
+  activeCombatId = id;
+  var html = '<h3>Preparar combate</h3><p class="hint" style="margin-bottom:12px">Adicione monstros antes de iniciar. Os agentes da campanha já entram automaticamente.</p>';
+  html += '<button type="button" class="btn-access" style="width:100%;margin-bottom:8px" onclick="closeCampModal();abrirCombate(\''+id+'\')">Ver participantes</button>';
+  html += '<button type="button" class="btn-primary" style="width:100%;padding:12px;border-radius:10px;margin-bottom:8px" onclick="closeCampModal();iniciarCombate(\''+id+'\')">🎲 Iniciar (rolar iniciativas)</button>';
+  html += '<button type="button" class="nav-close" onclick="closeCampModal()" style="width:100%">Fechar</button>';
+  openCampModal(html);
+}
+
+function openCampModal(html){
+  document.getElementById("campModalPanel").innerHTML = html;
+  document.getElementById("campModal").classList.add("show");
+}
+function closeCampModal(){
+  document.getElementById("campModal").classList.remove("show");
+}
+
+
+function openAppMenu(){
+  document.getElementById("appDrawerBg").classList.add("show");
+  document.getElementById("appDrawer").classList.add("show");
+}
+function closeAppMenu(){
+  document.getElementById("appDrawerBg").classList.remove("show");
+  document.getElementById("appDrawer").classList.remove("show");
+}
+function openLivroEmbed(){
+  closeAppMenu();
+  closeNav();
+  var modal = document.getElementById("livroModal");
+  var frame = document.getElementById("livroFrame");
+  var bg = document.getElementById("livroBg");
+  frame.src = "Herois_de_Bueiro_Completo.pdf";
+  modal.style.display = "flex";
+  bg.classList.add("show");
+}
+function closeLivroEmbed(){
+  var modal = document.getElementById("livroModal");
+  var frame = document.getElementById("livroFrame");
+  var bg = document.getElementById("livroBg");
+  modal.style.display = "none";
+  bg.classList.remove("show");
+  frame.src = "";
+}
+
+
+function novoPersonagem(){
+  var now=Date.now(); if(now-(novoPersonagem._t||0)<600) return; novoPersonagem._t=now;
+  try {
+    var store=loadStore();
+    if(!store.chars) store.chars = {};
+    if(Object.keys(store.chars).length>=MAX_SLOTS){ toast("Limite de "+MAX_SLOTS); return; }
+    var id="p_"+Date.now();
+    var blank = emptyState();
+    store.chars[id]=blank;
+    store.activeId=id;
+    if(!saveStore(store)) return;
+    activeId=id;
+    ensureAttrInputs();
+    setState(blank);
+    var vl = document.getElementById("viewList");
+    var vs = document.getElementById("viewSheet");
+    if(vl) vl.style.display="none";
+    if(vs) { vs.style.display="block"; vs.style.visibility="visible"; }
+    goTab("info");
+    toast("Novo personagem");
+  } catch(err) {
+    console.error(err);
+    alert("Erro ao criar personagem: "+err.message);
+  }
+}
+
+function ensureAttrInputs(){
+  ATTRS.forEach(function(a){
+    if(!document.getElementById("attr_"+a)){
+      var inp=document.createElement("input");
+      inp.type="hidden"; inp.id="attr_"+a; inp.value="0";
+      document.body.appendChild(inp);
+    }
+  });
+}
+function salvarAtual(quiet){
+  if(!activeId){ var store=loadStore(); var id="p_"+Date.now(); store.chars[id]=emptyState(); store.activeId=id; saveStore(store); activeId=id; }
+  var store=loadStore();
+  var st=getState(); if(!st.created && store.chars[activeId]&&store.chars[activeId].created) st.created=store.chars[activeId].created;
+  else if(!st.created) st.created=Date.now();
+  store.chars[activeId]=st; store.activeId=activeId; saveStore(store);
+  if(!quiet) toast("Salvo");
+}
+function deletarAtual(){
+  if(!activeId)return;
+  var store=loadStore();
+  var nome=(store.chars[activeId]&&store.chars[activeId].nome)||"este personagem";
+  appConfirm('Excluir "'+nome+'"?', "Excluir personagem").then(function(ok){
+    if(!ok) return;
+    delete store.chars[activeId];
+    activeId=null; store.activeId=null; saveStore(store);
+    document.getElementById("viewSheet").style.display="none";
+    document.getElementById("viewList").style.display="block";
+    renderList();
+    toast("Excluído");
+  });
+}
+
+function exportarJSON(){
+  salvarAtual(true);
+  var data={chars:loadStore().chars, export:getState()};
+  var blob=new Blob([JSON.stringify(data,null,2)],{type:"application/json"});
+  var a=document.createElement("a"); a.href=URL.createObjectURL(blob);
+  a.download=(document.getElementById("nome").value||"ficha")+"_hdb.json"; a.click();
+  toast("Exportado");
+}
+function importarJSON(){ document.getElementById("fileImport").click(); }
+function onFileImport(e){
+  var file=e.target.files[0]; if(!file)return;
+  var reader=new FileReader();
+  reader.onload=function(){
+    try{
+      var data=JSON.parse(reader.result);
+      if(data.chars){
+        var store=loadStore();
+        Object.keys(data.chars).forEach(function(k){ store.chars[k]=data.chars[k]; });
+        saveStore(store); renderList(); toast("Importado");
+      } else { setState(data.export||data); salvarAtual(); toast("Ficha importada"); }
+    }catch(err){ toast("Arquivo inválido"); }
+  };
+  reader.readAsText(file); e.target.value="";
+}
+
+function toast(msg){
+  var t=document.getElementById("toast"); t.textContent=msg; t.classList.add("show");
+  setTimeout(function(){ t.classList.remove("show"); },2500);
+}
+
+// Init
+try {
+  buildAttrUI();
+  ensureAttrInputs();
+  updateMastery();
+  recalc();
+  syncBars();
+  renderList();
+} catch(initErr) {
+  console.error("Init error", initErr);
+  alert("Erro ao carregar a ficha: "+initErr.message);
+}
+function bindNovoBtn(){
+  var btnNew = document.getElementById("btnNovo") || document.querySelector(".btn-new");
+  if(!btnNew) return;
+  function handler(e){
+    if(e){ e.preventDefault(); e.stopPropagation(); }
+    novoPersonagem();
+  }
+  btnNew.onclick = handler;
+  btnNew.addEventListener("click", handler, true);
+  btnNew.addEventListener("touchend", function(e){ e.preventDefault(); handler(e); }, {passive:false});
+}
+bindNovoBtn();
+function okFoto(f){ return (typeof f==="string" && /^data:image\/[a-z0-9.+-]+;base64,[A-Za-z0-9+\/=]+$/i.test(f)) ? f : ""; }
+function cleanId(p){
+  var o=Object.assign({},p);
+  o.id=String(o.id||("x_"+Date.now()+"_"+Math.floor(Math.random()*999))).replace(/[^\w-]/g,"");
+  return o;
+}
+var _saveT=null;
+function autoSave(){
+  if(!activeId) return;
+  clearTimeout(_saveT);
+  _saveT=setTimeout(flushSave,600);
+}
+function flushSave(){
+  clearTimeout(_saveT);
+  var vs=document.getElementById("viewSheet");
+  if(activeId && vs && vs.style.display==="block") salvarAtual(true);
+}
+["input","change","click"].forEach(function(ev){
+  document.getElementById("viewSheet").addEventListener(ev,autoSave);
+});
+document.addEventListener("visibilitychange",function(){ if(document.visibilityState==="hidden") flushSave(); });
+window.addEventListener("pagehide",flushSave);
+(function(){
+  var st=loadStore();
+  Object.keys(st.chars).forEach(function(id){
+    var f=st.chars[id] && st.chars[id].foto;
+    if(typeof f==="string" && f.length>60000) resizeImage(f,256,function(small){
+      var s2=loadStore();
+      if(s2.chars[id] && s2.chars[id].foto===f){ s2.chars[id].foto=small; if(saveStore(s2)) renderList(); }
+    });
+  });
+})();
+window.addEventListener("beforeunload",function(){ if(activeId) salvarAtual(true); });
+</script>
+
+
+<!-- ════ CAMPANHAS ════ -->
+<div id="viewCampaigns">
+  <div class="list-header">
+    <button type="button" class="hamburger" onclick="openAppMenu()"><span></span><span></span><span></span></button>
+    <h1 style="flex:1;margin:0 8px"><span>HERÓIS DE BUEIRO</span>Campanhas</h1>
+    <button type="button" class="btn-new" onclick="novaCampanha()">+ Nova</button>
+  </div>
+  <div class="list-count" id="campCount">0 campanhas</div>
+  <div id="campList" style="padding:0 0 20px"></div>
+</div>
+
+<!-- ════ CAMPANHA DETALHE ════ -->
+<div id="viewCampaign">
+  <div class="camp-header">
+    <button class="back" onclick="voltarCampanhas()" style="width:40px;height:40px;border-radius:10px;background:var(--surface2)">←</button>
+    <h1 id="campNome">Campanha</h1>
+    <button type="button" class="hamburger" onclick="openAppMenu()"><span></span><span></span><span></span></button>
+  </div>
+  <div class="camp-tabs">
+    <button type="button" class="active" data-ctab="agentes" onclick="campTab('agentes')">Agentes</button>
+    <button type="button" data-ctab="combates" onclick="campTab('combates')">Combates</button>
+    <button type="button" data-ctab="escudo" onclick="campTab('escudo')">Escudo</button>
+    <button type="button" data-ctab="config" onclick="campTab('config')">Config</button>
+  </div>
+  <div class="camp-body">
+    <div id="ctab-agentes">
+      <button type="button" class="btn-add-power" onclick="abrirAddAgente()">+ Adicionar personagem</button>
+      <div id="campAgentes"></div>
+    </div>
+    <div id="ctab-combates" style="display:none">
+      <button type="button" class="btn-add-power" onclick="novoCombate()">+ Criar combate</button>
+      <div id="campCombates"></div>
+    </div>
+    <div id="ctab-escudo" style="display:none">
+      <div class="sec">
+        <h2>Escudo do Mestre</h2>
+        <p class="hint" style="margin-bottom:12px">Anotações secretas, ideias de cena, PV de chefes…</p>
+        <textarea id="campEscudo" placeholder="Notas do mestre (só você vê neste dispositivo)…" style="min-height:180px" onchange="salvarEscudo()"></textarea>
+      </div>
+      <div class="sec">
+        <h2>Personagens / Vilões</h2>
+        <button type="button" class="btn-add-power" onclick="abrirNovoMonstro()">+ Novo personagem/vilão</button>
+        <div id="campMonstros"></div>
+      </div>
+    </div>
+    <div id="ctab-config" style="display:none">
+      <div class="sec">
+        <h2>Campanha</h2>
+        <div class="field"><label>Nome</label><input type="text" id="campNomeEdit" onchange="salvarCampMeta()" /></div>
+        <div class="field"><label>Descrição</label><textarea id="campDescEdit" onchange="salvarCampMeta()"></textarea></div>
+        <button type="button" class="btn-primary" style="width:100%;padding:12px;border-radius:10px;margin-top:8px" onclick="exportarCampanha()">Exportar código da campanha</button>
+        <button type="button" class="btn-ghost" style="width:100%;padding:12px;border-radius:10px;margin-top:8px" onclick="importarCampanha()">Importar código</button>
+        <button type="button" class="btn-ghost" style="width:100%;padding:12px;border-radius:10px;margin-top:8px;color:#f87171;border-color:#7f1d1d" onclick="deletarCampanha()">Excluir campanha</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ════ COMBATE ATIVO ════ -->
+<div id="viewCombat">
+  <div class="camp-header">
+    <button class="back" onclick="voltarDaCombate()" style="width:40px;height:40px;border-radius:10px;background:var(--surface2)">←</button>
+    <h1 id="combatTitle">Combate</h1>
+    <button type="button" class="btn-ghost" style="padding:8px 12px;border-radius:8px;font-size:0.8rem" onclick="encerrarCombate()">Encerrar</button>
+  </div>
+  <div class="camp-body">
+    <div class="turn-bar">
+      <span class="round">Rodada <strong id="combatRound">1</strong></span>
+      <button type="button" class="btn-ghost" style="padding:8px 12px;border-radius:8px;font-size:0.8rem" onclick="turnoAnterior()">← Turno</button>
+      <button type="button" class="btn-primary" style="padding:8px 14px;border-radius:8px;font-size:0.8rem" onclick="proximoTurno()">Próximo turno →</button>
+    </div>
+    <div style="display:flex;gap:8px;margin-bottom:14px;flex-wrap:wrap">
+      <button type="button" class="btn-ghost" style="padding:8px 12px;border-radius:8px;font-size:0.8rem" onclick="abrirAddCombatente()">+ Adicionar</button>
+      <button type="button" class="btn-ghost" style="padding:8px 12px;border-radius:8px;font-size:0.8rem" onclick="rolarIniciativas()">🎲 Re-rolar iniciativas</button>
+    </div>
+    <div id="initList"></div>
+  </div>
+</div>
+
+<!-- Modal genérico campanha -->
+<div class="modal-sheet" id="campModal">
+  <div class="panel" id="campModalPanel"></div>
+</div>
+
+<!-- App menu (☰ global) -->
+<div class="app-drawer-bg" id="appDrawerBg" onclick="closeAppMenu()"></div>
+<div class="app-drawer" id="appDrawer">
+  <div class="drawer-brand">
+    <div class="t">HERÓIS DE BUEIRO</div>
+    <div class="n">Menu</div>
+  </div>
+  <button type="button" onclick="closeAppMenu();showLista()">
+    <span class="icon">👤</span> Personagens
+  </button>
+  <button type="button" onclick="closeAppMenu();showCampanhas()">
+    <span class="icon">🗺️</span> Campanhas
+  </button>
+  <a class="drawer-item" href="Herois_de_Bueiro_Completo.pdf" target="_blank" rel="noopener" onclick="closeAppMenu()">
+    <span class="icon">📕</span> Livro de regras
+  </a>
+  <button type="button" onclick="openLivroEmbed()">
+    <span class="icon">📖</span> Ler livro aqui
+  </button>
+  <div class="drawer-foot">Playtest completo · PDF do sistema</div>
+</div>
+
+<!-- Livro embed modal -->
+<div class="app-drawer-bg" id="livroBg" onclick="closeLivroEmbed()"></div>
+<div id="livroModal" style="display:none;position:fixed;inset:0;z-index:90;background:#0a0a0a;flex-direction:column">
+  <div style="display:flex;align-items:center;gap:10px;padding:12px 16px;border-bottom:1px solid #2e2e2e;background:#141414">
+    <button type="button" onclick="closeLivroEmbed()" style="width:40px;height:40px;border-radius:10px;background:#1c1c1c;font-size:1.2rem">←</button>
+    <div style="flex:1;font-weight:700">Livro — Heróis de Bueiro</div>
+    <a href="Herois_de_Bueiro_Completo.pdf" target="_blank" rel="noopener" style="color:#e11d48;font-size:0.85rem;font-weight:600">Abrir ↗</a>
+  </div>
+  <iframe id="livroFrame" src="" style="flex:1;width:100%;border:none;background:#111"></iframe>
+</div>
+
+
+<div class="app-dialog-bg" id="appDialogBg">
+  <div class="app-dialog" id="appDialog">
+    <h3 id="dlgTitle">Título</h3>
+    <div class="msg" id="dlgMsg"></div>
+    <div id="dlgBody"></div>
+    <div class="dlg-actions" id="dlgActions"></div>
+  </div>
+</div>
+</body>
+</html>
